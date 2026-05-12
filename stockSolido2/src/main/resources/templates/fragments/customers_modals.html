@@ -1,0 +1,83 @@
+<div th:fragment="AgregarCliente">
+
+  <div id="modalCliente" class="modal">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h2 id="modalTitle">Agregar Cliente</h2>
+        <span class="close" id="closeModalCliente">&times;</span>
+      </div>
+
+      <!-- Mensaje de error general -->
+      <div id="errorGeneralCliente" class="form-error-banner hidden"></div>
+
+      <form id="formCliente"
+            th:action="@{/private/admin/guardarCliente}"
+            method="post"
+            th:object="${clienteActual}">
+
+        <input type="hidden" id="clienteId" name="id" th:value="${clienteActual.id}" />
+
+        <div class="form-group">
+          <label>Tipo de persona</label>
+          <select id="tipo" name="tipo" required>
+            <option value="Persona Natural">Persona Natural</option>
+            <option value="Empresa">Empresa</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Documento</label>
+          <input type="text" id="documento" name="documento" required
+                 placeholder="Ej: 1234567890" />
+          <small id="errorDocumento" class="field-error"></small>
+          <small id="hintDocumento" class="field-hint">CC: 6–10 dígitos</small>
+        </div>
+
+        <div class="form-group">
+          <label>Nombre</label>
+          <input type="text" id="nombre" name="nombre" required
+                 placeholder="Nombre completo" />
+          <small id="errorNombre" class="field-error"></small>
+        </div>
+
+        <div class="form-group">
+          <label>Correo</label>
+          <input type="email" id="correo" name="correo" required
+                 placeholder="correo@ejemplo.com" />
+          <small id="errorCorreo" class="field-error"></small>
+        </div>
+
+        <div class="form-group">
+          <label>Teléfono</label>
+          <input type="text" id="telefono" name="telefono" required
+                 placeholder="Ej: 3001234567" maxlength="10" />
+          <small id="errorTelefono" class="field-error"></small>
+          <small class="field-hint">10 dígitos, empieza por 3 (Colombia)</small>
+        </div>
+
+        <button type="submit" class="btn-guardar" id="btnGuardar">Guardar</button>
+
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL FILTRAR -->
+  <div id="filterModal" class="modal">
+    <div class="modal-content modal-content--narrow">
+      <div class="modal-header">
+        <h2>Filtrar clientes</h2>
+        <span class="close" id="closeFilterCliente">&times;</span>
+      </div>
+      <div class="modal-body">
+        <p class="filter-subtitle">Tipo de cliente</p>
+        <div class="filter-list">
+          <button class="filter-option" id="filterPersonaNatural">Persona Natural</button>
+          <button class="filter-option" id="filterEmpresa">Empresa</button>
+          <button class="filter-option filter-limpiar" id="filterTodos">Mostrar todos</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STOCK SOLIDO</title>
+
+    <!--Fuente-->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    <!--CSS-->
+    <link rel="stylesheet" th:href="@{/css/style_login.css}" />
+</head>
+
+<body>
+    <div class="container">
+        <!-- Mensaje error -->
+        <div th:if="${mensajeError}" class="alert-error">
+            <span>⚠</span>
+            <p th:text="${mensajeError}"></p>
+        </div>
+
+        <!-- Mensaje logout -->
+        <div th:if="${mensajeLogout}" class="alert-success">
+            <span>✓</span>
+            <p th:text="${mensajeLogout}"></p>
+        </div>
+        <!-- Lado izquierdo -->
+        <div class="left-panel">
+            <div class="brand">
+                <h1>SISTEMA DE</h1><br>
+                <h1>GESTIÓN EMPRESARIAL</h1>
+                <p>@StockSolido 2024</p>
+            </div>
+        </div>
+
+        <!-- Lado derecho -->
+        <div class="right-panel">
+            <div class="login-card">
+                <h2>Iniciar Sesión</h2>
+
+                <form th:action="@{/login}" method="post">
+                    <div class="input-group">
+                        <label>Usuario</label>
+                        <input type="text" name="username" placeholder="CC:">
+                    </div>
+
+                    <div class="input-group">
+                        <label>Contraseña</label>
+                        <input type="password" name="password">
+                    </div>
+
+                    <button type="submit" class="btn-login">Ingresar</button>
+                </form>
+            </div>
+        </div>
+
+    </div>
+
+    <!--JS-->
+    <script th:src="@{login.js}"></script>
+</body>
+
+</html>

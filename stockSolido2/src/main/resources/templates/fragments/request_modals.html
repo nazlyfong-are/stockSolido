@@ -1,0 +1,127 @@
+<div th:fragment="AgregarSolicitud">
+  <div id="modalSolicitud" class="modal">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h2 id="modalTitleSolicitud">Agregar Solicitud</h2>
+        <span class="close" id="closeModalSolicitud">&times;</span>
+      </div>
+
+      <form id="formSolicitud" th:action="@{/private/admin/guardarSolicitud}" method="post"
+        th:object="${solicitudActual}">
+
+        <input type="hidden" id="solicitudId" name="id" th:value="${solicitudActual.id}" />
+
+        <!-- Campos ocultos del cliente embebido -->
+        <input type="hidden" id="clienteIdHidden"        name="cliente.clienteId" />
+        <input type="hidden" id="clienteNombreHidden"    name="cliente.nombre" />
+        <input type="hidden" id="clienteDocumentoHidden" name="cliente.documento" />
+        <input type="hidden" id="clienteTipoHidden"      name="cliente.tipo" />
+        <input type="hidden" id="clienteCorreoHidden"    name="cliente.correo" />
+        <input type="hidden" id="clienteTelefonoHidden"  name="cliente.telefono" />
+
+        <!-- Cliente -->
+        <div class="form-group">
+          <label>Cliente</label>
+          <select id="clienteSelect" required>
+            <option value="">Seleccione un cliente</option>
+            <option th:each="cliente : ${listaClientes}"
+                    th:value="${cliente.id}"
+                    th:text="${cliente.nombre}"
+                    th:attr="
+                      data-nombre=${cliente.nombre},
+                      data-documento=${cliente.documento},
+                      data-tipo=${cliente.tipo},
+                      data-correo=${cliente.correo},
+                      data-telefono=${cliente.telefono}">
+            </option>
+          </select>
+        </div>
+
+        <!-- Campo oculto del precio del servicio embebido -->
+        <input type="hidden" id="servicioPrecioHidden" name="servicio.precioUnitario" />
+
+        <!-- Tipo de Servicio -->
+        <div class="form-group">
+          <label>Tipo de Servicio</label>
+          <select id="tipoServicioSelect" name="servicio.tipoServicio" required>
+            <option value="" data-precio="0">Seleccione un servicio</option>
+            <option th:each="servicio : ${tiposServicio}"
+                    th:value="${servicio.tipoServicio}"
+                    th:text="${servicio.tipoServicio}"
+                    th:attr="data-precio=${servicio.precioServicio}">
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Número de Servicios</label>
+          <input type="number" id="noServicios" name="noServicios" min="1" required />
+        </div>
+
+        <!-- Total calculado (solo lectura) -->
+        <div class="form-group">
+          <label>Total</label>
+          <input type="text" id="totalMostrado" readonly placeholder="$0.00" />
+          <input type="hidden" id="total" name="total" />
+        </div>
+
+        <div class="form-group">
+          <label>Fecha</label>
+          <input type="date" id="fecha" name="fecha" required />
+          <small id="errorFecha" class="field-error"></small>
+          <small class="field-hint">No se permiten domingos ni fechas pasadas.</small>
+        </div>
+
+        <div class="form-group">
+          <label>Hora</label>
+          <input type="time" id="hora" name="hora" required min="07:00" max="18:30" />
+          <small id="errorHora" class="field-error"></small>
+          <small class="field-hint">Horario permitido: 7:00 AM – 6:30 PM</small>
+        </div>
+
+        <div class="form-group">
+          <label>Descripción</label>
+          <textarea id="descripcion" name="descripcion" maxlength="150" rows="3" required></textarea>
+          <small id="contadorDescripcion">0 / 150</small>
+        </div>
+
+        <div class="form-group">
+          <label>Estado</label>
+          <select id="estado" name="estado">
+            <option value="En espera">En espera</option>
+            <option value="En proceso">En proceso</option>
+            <option value="Finalizado">Finalizado</option>
+          </select>
+        </div>
+
+        <button type="submit" class="btn-guardar" id="btnGuardarSolicitud">Guardar</button>
+
+      </form>
+    </div>
+  </div>
+
+  <!--modal filtrar solicitudes -->
+  <div id="filterRequestModal" class="modal">
+    <div class="modal-content modal-content--narrow">
+      <div class="modal-header">
+        <h2 id="filterTitle">Filtrar por</h2>
+        <span class="close" id="closeFilterRequest">&times;</span>
+      </div>
+      <div class="modal-body">
+        <div id="filterStep1">
+          <button class="filter-option" id="filterByPrecio">Precio</button>
+          <button class="filter-option" id="filterByFecha">Fecha</button>
+          <button class="filter-option" id="filterByEstado">Estado</button>
+          <button class="filter-option" id="filterByTipoServicio">Tipo de servicio</button>
+          <button class="filter-option filter-limpiar" id="filterLimpiar">Quitar filtros</button>
+        </div>
+        <div id="filterStep2" class="hidden">
+          <button class="filter-back" id="filterBack">← Volver</button>
+          <div id="filterOpciones" class="filter-opciones-container"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

@@ -1,0 +1,136 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Montserrat', sans-serif;
+    background-color: #f4f4f4;
+}
+
+/* barra navegacion  */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #1f1f1f;
+    padding: 15px 40px;
+    color: white;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.logo {
+    font-weight: 700;
+    font-size: 20px;
+    color: #c62828;
+    letter-spacing: 1px;
+}
+
+.nav-links {
+    display: flex;
+    gap: 20px;
+}
+
+.nav-btn {
+    background: transparent;
+    border: 2px solid transparent;
+    color: white;
+    padding: 8px 18px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: 0.3s ease;
+    border-radius: 6px;
+}
+
+.nav-btn:hover {
+    background-color: #c62828;
+    border-color: #c62828;
+}
+
+.user-section {
+    font-size: 14px;
+    font-weight: 500;
+}
+
+/* main contenido */
+.main-content {
+    padding: 60px 10%;
+}
+
+.main-content h1 {
+    font-size: 28px;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.main-content p {
+    color: #666;
+    margin-bottom: 40px;
+}
+
+/* tarjetas */
+.cards-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 25px;
+}
+
+.card {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.05);
+    transition: 0.3s ease;
+    border-top: 4px solid #c62828;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+.card h3 {
+    margin-bottom: 10px;
+    color: #c62828;
+}
+
+.card p {
+    font-size: 14px;
+    color: #555;
+}
+
+/* responsive */
+@media (max-width: 768px) {
+
+    .navbar {
+        padding: 15px 20px;
+    }
+
+    .main-content {
+        padding: 40px 20px;
+    }
+
+    .main-content h1 {
+        font-size: 24px;
+    }
+}
+
+@media (max-width: 500px) {
+
+    .nav-links {
+        width: 100%;
+        flex-direction: column;
+    }
+
+    .nav-btn {
+        width: 100%;
+    }
+
+    .logo {
+        text-align: center;
+    }
+
+    .user-section {
+        text-align: center;
+    }
+}

@@ -1,0 +1,70 @@
+<div th:fragment="paginacion(baseUrl, currentPage, totalPages, terminoBusqueda, ordenActivo, filtro1Nombre, filtro1Valor, filtro2Nombre, filtro2Valor)">
+  <div class="pagination-container">
+
+    <div th:if="${totalPages == 0}">
+      <p>No hay resultados</p>
+    </div>
+
+    <div th:if="${totalPages > 0}">
+      <ul class="pagination">
+
+        <li th:classappend="${currentPage == 0} ? 'disabled'">
+          <a th:if="${currentPage > 0}"
+             th:href="@{${baseUrl}(page=${currentPage - 1},
+               busqueda=${terminoBusqueda},
+               orden=${ordenActivo},
+               __${filtro1Nombre}__=${filtro1Valor},
+               __${filtro2Nombre}__=${filtro2Valor})}">«</a>
+          <span th:if="${currentPage == 0}">«</span>
+        </li>
+
+        <li th:if="${currentPage > 2}">
+          <a th:href="@{${baseUrl}(page=0,
+               busqueda=${terminoBusqueda},
+               orden=${ordenActivo},
+               __${filtro1Nombre}__=${filtro1Valor},
+               __${filtro2Nombre}__=${filtro2Valor})}">1</a>
+        </li>
+
+        <li th:if="${currentPage > 3}"><span>…</span></li>
+
+        <th:block th:with="
+          start=${T(java.lang.Math).max(0, currentPage - 2)},
+          end=${T(java.lang.Math).min(totalPages - 1, currentPage + 2)}">
+
+          <li th:each="i : ${#numbers.sequence(start, end)}"
+              th:classappend="${i == currentPage} ? 'active'">
+            <a th:href="@{${baseUrl}(page=${i},
+                 busqueda=${terminoBusqueda},
+                 orden=${ordenActivo},
+                 __${filtro1Nombre}__=${filtro1Valor},
+                 __${filtro2Nombre}__=${filtro2Valor})}"
+               th:text="${i + 1}"></a>
+          </li>
+        </th:block>
+
+        <li th:if="${currentPage < totalPages - 4}"><span>…</span></li>
+
+        <li th:if="${currentPage < totalPages - 3}">
+          <a th:href="@{${baseUrl}(page=${totalPages - 1},
+               busqueda=${terminoBusqueda},
+               orden=${ordenActivo},
+               __${filtro1Nombre}__=${filtro1Valor},
+               __${filtro2Nombre}__=${filtro2Valor})}"
+             th:text="${totalPages}"></a>
+        </li>
+
+        <li th:classappend="${currentPage + 1 == totalPages} ? 'disabled'">
+          <a th:if="${currentPage + 1 < totalPages}"
+             th:href="@{${baseUrl}(page=${currentPage + 1},
+               busqueda=${terminoBusqueda},
+               orden=${ordenActivo},
+               __${filtro1Nombre}__=${filtro1Valor},
+               __${filtro2Nombre}__=${filtro2Valor})}">»</a>
+          <span th:if="${currentPage + 1 == totalPages}">»</span>
+        </li>
+
+      </ul>
+    </div>
+  </div>
+</div>

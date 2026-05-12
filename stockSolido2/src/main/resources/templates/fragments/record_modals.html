@@ -1,0 +1,28 @@
+<!--modal filtrar -->
+<div th:fragment="FiltrarHistorial">
+  <div id="filterRecordModal" class="modal">
+    <div class="modal-content modal-content--narrow">
+      <div class="modal-header">
+        <h2 id="filterRecordTitle">Filtrar por</h2>
+        <span class="close" id="closeFilterRecord">&times;</span>
+      </div>
+      <div class="modal-body">
+
+        <!-- paso 1 -->
+        <div id="filterRecordStep1">
+          <button class="filter-option" id="filterRecordByPrecio">Precio</button>
+          <button class="filter-option" id="filterRecordByFecha">Fecha</button>
+          <button class="filter-option" id="filterRecordByTipoServicio">Tipo de servicio</button>
+          <button class="filter-option filter-limpiar" id="filterRecordLimpiar">Quitar filtros</button>
+        </div>
+
+        <!-- paso 2 -->
+        <div id="filterRecordStep2" class="hidden">
+          <button class="filter-back" id="filterRecordBack">← Volver</button>
+          <div id="filterRecordOpciones" class="filter-opciones-container"></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>

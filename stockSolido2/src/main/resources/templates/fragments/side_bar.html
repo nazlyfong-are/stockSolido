@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+                xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<div th:fragment="side_bar">
+
+    <div class="sidebar">
+
+        <div class="sidebar-header">
+            <div class="logo-container">
+                <img th:src="@{/img/logo.png}" alt="Logo Empresa" class="logo-img">
+            </div>
+            <h2 class="company-name">StockSólido</h2>
+        </div>
+
+        <nav class="sidebar-menu">
+            <a th:href="@{/private/admin/home}"      class="menu-item" sec:authorize="hasRole('ADMIN')">Inicio</a>
+            <a th:href="@{/private/admin/customers}" class="menu-item" sec:authorize="hasRole('ADMIN')">Clientes</a>
+            <a th:href="@{/private/admin/services}"  class="menu-item" sec:authorize="hasRole('ADMIN')">Servicios</a>
+            <a th:href="@{/private/admin/request}"   class="menu-item" sec:authorize="hasRole('ADMIN')">Solicitudes</a>
+            <a th:href="@{/private/admin/record}"    class="menu-item" sec:authorize="hasRole('ADMIN')">Historial</a>
+            <a th:href="@{/private/admin/dashboard}" class="menu-item" sec:authorize="hasRole('ADMIN')">Dashboard</a>
+            <a th:href="@{/private/admin/download}"  class="menu-item" sec:authorize="hasRole('ADMIN')">Reportes</a>
+
+            <!-- Logout: formulario POST con token CSRF (requerido por Spring Security) -->
+            <form th:action="@{/logout}" method="post" sec:authorize="hasRole('ADMIN')" style="margin:0; padding:0;">
+                <button type="submit" class="menu-item logout">Cerrar Sesión</button>
+            </form>
+        </nav>
+
+    </div>
+
+</div>

@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-StockSolidoApplication<stockSolido>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.stockSolido.stockSolido.StockSolidoApplication",
+            "projectName": "stockSolido",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}

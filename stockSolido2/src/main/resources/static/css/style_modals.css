@@ -1,0 +1,326 @@
+/* fondo modal */
+.modal{
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(4px);
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+/* contenido */
+.modal-content{
+    background: #ffffff;
+    padding: 25px 30px;
+    border-radius: 10px;
+    width: 400px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.25);
+    animation: fadeInScale 0.25s ease;
+}
+
+/* header */
+.modal-header{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.modal-header h2{
+    color: #2c2c2c;
+    font-weight: 600;
+}
+
+/* btn cerrar */
+.close{
+    font-size: 20px;
+    cursor: pointer;
+    color: #888;
+    transition: 0.2s;
+}
+
+.close:hover{
+    color: #c62828;
+}
+
+/* formulario */
+.form-group{
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 12px;
+}
+
+.form-group label{
+    font-size: 13px;
+    margin-bottom: 4px;
+    color: #555;
+}
+
+.form-group input,
+.form-group select{
+    padding: 8px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    outline: none;
+    transition: 0.2s;
+    font-size: 14px;
+}
+
+
+.form-group input:focus,
+.form-group select:focus{
+    border-color: #c62828;
+    box-shadow: 0 0 4px rgba(198,40,40,0.3);
+}
+
+/* btn guardar */
+.btn-guardar{
+    width: 100%;
+    margin-top: 10px;
+    padding: 10px;
+    background: #c62828;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: 0.2s;
+}
+
+.btn-guardar:hover{
+    background: #a61d1d;
+}
+
+.form-group textarea{
+    padding: 8px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    outline: none;
+    transition: 0.2s;
+    font-size: 14px;
+    resize: none;
+}
+
+.form-group textarea:focus{
+    border-color: #c62828;
+    box-shadow: 0 0 4px rgba(198,40,40,0.3);
+}
+
+#contadorDescripcion{
+    font-size: 11px;
+    color: #888;
+    text-align: right;
+}
+
+.estado{
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    display: inline-block;
+    text-transform: capitalize;
+}
+
+.detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 9px 0;
+    border-bottom: 0.5px solid #f0f0f0;
+}
+
+.detail-row:last-child {
+    border-bottom: none;
+}
+
+.detail-label {
+    font-size: 12px;
+    color: #888;
+    font-weight: 400;
+}
+
+.detail-value {
+    font-size: 13px;
+    color: #2c2c2c;
+    font-weight: 500;
+    text-align: right;
+    max-width: 60%;
+    word-break: break-word;
+}
+
+.filter-option {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    background: #fff;
+    font-size: 14px;
+    cursor: pointer;
+    text-align: left;
+    transition: 0.2s;
+}
+
+.filter-option:hover {
+    border-color: #c62828;
+    color: #c62828;
+}
+
+.filter-limpiar {
+    color: #888;
+    margin-top: 4px;
+}
+
+.filter-limpiar:hover {
+    border-color: #888;
+    color: #555;
+}
+
+
+
+/* animacion */
+@keyframes fadeInScale{
+    from{
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to{
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* ── Clases utilitarias ── */
+
+.hidden {
+    display: none !important;
+}
+
+.modal-content--narrow {
+    width: 340px;
+}
+
+.filter-opciones-container {
+    margin-top: 10px;
+}
+
+.filter-subtitle {
+    font-size: 13px;
+    color: #888;
+    margin-bottom: 12px;
+}
+
+.filter-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.field-error--modal {
+    color: #c62828;
+    font-size: 12px;
+    margin-top: 8px;
+    margin-bottom: 4px;
+}
+
+.filter-back {
+    background: none;
+    border: none;
+    color: #555;
+    font-size: 13px;
+    cursor: pointer;
+    padding: 4px 0;
+    margin-bottom: 8px;
+}
+
+.filter-back:hover {
+    color: #c62828;
+}
+
+.filter-select-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 4px;
+}
+
+/* El <select> reutiliza el estilo general pero con ajuste visual */
+.filter-select {
+    width: 100%;
+    padding: 9px 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 14px;
+    color: #2c2c2c;
+    background: #fff;
+    outline: none;
+    cursor: pointer;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    appearance: auto; /* muestra la flecha nativa del navegador */
+}
+
+.filter-select:focus {
+    border-color: #c62828;
+    box-shadow: 0 0 4px rgba(198,40,40,0.3);
+}
+
+/* btn Aplicar — deshabilitado por defecto */
+.filter-apply-btn {
+    width: 100%;
+    padding: 9px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: not-allowed;
+    background: #e0e0e0;
+    color: #aaa;
+    transition: background 0.2s, color 0.2s;
+}
+
+/* Activo cuando el usuario ha elegido una opcion */
+.filter-apply-btn--active {
+    background: #c62828;
+    color: #fff;
+    cursor: pointer;
+}
+
+.filter-apply-btn--active:hover {
+    background: #a61d1d;
+}
+
+/* responsive*/
+
+@media (max-width: 700px) {
+
+    .modal-content {
+        width: 92%;
+        max-width: 92%;
+        padding: 20px;
+    }
+
+    .modal-actions {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .modal-btn,
+    .btn-guardar {
+        width: 100%;
+    }
+
+    .detail-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+    }
+
+    .detail-value {
+        max-width: 100%;
+        text-align: left;
+    }
+}

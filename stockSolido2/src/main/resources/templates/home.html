@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard - StockSólido</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Fuente -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="/css/style_home.css">
+</head>
+<body>
+
+    <header class="navbar">
+        <div class="logo">
+            StockSólido
+        </div>
+
+        <nav class="nav-links">
+            <a th:href="@{/private/admin/customers}" class="nav-btn">Clientes</a>
+            <a th:href="@{/private/admin/services}" class="nav-btn">Servicios</a>
+            <a th:href="@{/private/admin/request}" class="nav-btn">Solicitudes</a>
+            <a th:href="@{/private/admin/record}" class="nav-btn">Historial</a>
+            <a th:href="@{/private/admin/download}" class="nav-btn">Reportes</a>
+            <a th:href="@{/private/admin/dashboard}" class="nav-btn">Dashboard</a>
+        </nav>
+
+        <div class="user-section">
+            <span>Administrador</span>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <h1>Bienvenido al Panel Administrativo</h1>
+        <p>Selecciona una opción del menú superior para comenzar.</p>
+
+        <div class="cards-container">
+            <div class="card">
+                <h3>Clientes</h3>
+                <p>Gestiona la información de tus clientes.</p>
+            </div>
+
+            <div class="card">
+                <h3>Servicios</h3>
+                <p>Administra los servicios disponibles.</p>
+            </div>
+
+            <div class="card">
+                <h3>Solicitudes</h3>
+                <p>Revisa y gestiona solicitudes activas.</p>
+            </div>
+
+            <div class="card">
+                <h3>Historial</h3>
+                <p>Consulta todos los servicios finalizados.</p>
+            </div>
+
+            <div class="card">
+                <h3>Dashboard</h3>
+                <p>Visualizar los datos generales.</p>
+            </div>
+
+            <div class="card">
+                <h3>Reportes</h3>
+                <p>Descargar y enviar reportes sobre el estado de solicitudes.</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- JS -->
+    <script src="home.js"></script>
+</body>
+</html>

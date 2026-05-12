@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DashBoard - StockSólido</title>
+
+    <!--CSS-->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" th:href="@{/css/side_bar.css}" />
+    <link rel="stylesheet" th:href="@{/css/style_general.css}" />
+    <link rel="stylesheet" th:href="@{/css/style_layout.css}" />
+    <link rel="stylesheet" th:href="@{/css/style_modals.css}" />
+    <link rel="stylesheet" th:href="@{/css/style_pag.css}" />
+    <link rel="stylesheet" th:href="@{/css/style_dashboard.css}" />
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+</head>
+
+<body>
+    <div th:replace="~{fragments/side_bar :: side_bar}"></div>
+    <div th:replace="~{fragments/modals :: global_modals}"></div>
+
+    <main class="main-content">
+        <div class="dashboard-wrapper">
+
+            <!-- Cabecera -->
+            <div class="dash-header">
+                <div>
+                    <h1>Dashboard <span>StockSólido</span></h1>
+                    <p>Resumen general de operaciones y datos del negocio</p>
+                </div>
+            </div>
+
+
+
+            <!-- link conectar Power BI -->
+            <p class="section-label">Dashboard Power BI</p>
+            <div class="chart-card" style="height: 600px;">
+                <iframe title="entregable_proAula"
+                    src="https://app.powerbi.com/view?r=eyJrIjoiNTc1NGJiODItY2MwOS00Mjc3LTgzNjYtMzg3Y2MxNDFmODJlIiwidCI6IjlkMTJiZjNmLWU0ZjYtNDdhYi05MTJmLTFhMmYwZmM0OGFhNCIsImMiOjR9"
+                    width="100%" height="100%" frameborder="0" allowFullScreen="true">
+                </iframe>
+            </div>
+        </div>
+
+
+    </main>
+
+    <!-
+    <script th:src="@{/js/dashBoard.js}"></script>
+</body>
+
+</html>

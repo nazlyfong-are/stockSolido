@@ -1,0 +1,288 @@
+/* Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Base */
+body {
+    font-family: 'Poppins', sans-serif;
+    height: 100vh;
+    background: #f2f2f2;
+}
+
+/* Layout principal */
+.container {
+    display: flex;
+    height: 100vh;
+}
+
+/* Panel izquierdo */
+.left-panel {
+    flex: 1;
+    background: #2c2c2c;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px;
+    clip-path: polygon(0 0, 85% 0, 70% 100%, 0% 100%);
+}
+
+.brand h1 {
+    font-weight: 600;
+    letter-spacing: 1px;
+}
+
+.brand p {
+    margin-top: 10px;
+    font-weight: 300;
+    color: #ccc;
+}
+
+/* Panel derecho */
+.right-panel {
+    flex: 1;
+    background: linear-gradient(135deg, #7a0000, #b30000);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* tarjeta */
+.login-card {
+    background: white;
+    padding: 40px;
+    width: 350px;
+    border-radius: 12px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+}
+
+.login-card h2 {
+    text-align: center;
+    margin-bottom: 25px;
+    color: #333;
+    font-weight: 500;
+}
+
+/* inputs */
+.input-group {
+    margin-bottom: 20px;
+}
+
+.input-group label {
+    font-size: 14px;
+    color: #555;
+    display: block;
+    margin-bottom: 6px;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    transition: 0.3s;
+}
+
+.input-group input:focus {
+    border-color: #b30000;
+    outline: none;
+    box-shadow: 0 0 5px rgba(179,0,0,0.4);
+}
+
+/* Opciones */
+.options {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    margin-bottom: 20px;
+}
+
+.options a {
+    text-decoration: none;
+    color: #b30000;
+}
+
+.options a:hover {
+    text-decoration: underline;
+}
+
+/* btn */
+.btn-login {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 6px;
+    background: #b30000;
+    color: white;
+    font-weight: 500;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.btn-login:hover {
+    background: #7a0000;
+}
+
+
+/*alertas de error */
+
+.alert-error,
+.alert-success{
+
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    min-width: 320px;
+    max-width: 90%;
+
+    padding: 14px 18px;
+    border-radius: 10px;
+
+    font-size: 14px;
+    font-weight: 500;
+
+    box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+
+    z-index: 9999;
+
+    animation: slideDown 0.35s ease;
+}
+
+/* ERROR */
+
+.alert-error{
+    background: rgba(255,255,255,0.97);
+    border-left: 5px solid #c62828;
+    color: #c62828;
+}
+
+/* SUCCESS */
+
+.alert-success{
+    background: rgba(255,255,255,0.97);
+    border-left: 5px solid #27ae60;
+    color: #27ae60;
+}
+
+/* icono */
+
+.alert-error span,
+.alert-success span{
+    font-size: 18px;
+    font-weight: 700;
+}
+
+/* texto */
+
+.alert-error p,
+.alert-success p{
+    margin: 0;
+    line-height: 1.4;
+}
+
+/* animacion */
+
+@keyframes slideDown{
+
+    from{
+        opacity: 0;
+        transform: translate(-50%, -15px);
+    }
+
+    to{
+        opacity: 1;
+        transform: translate(-50%, 0);
+    }
+}
+
+/* responsive */
+
+@media (max-width: 600px){
+
+    .alert-error,
+    .alert-success{
+
+        width: 92%;
+        min-width: unset;
+
+        padding: 12px 14px;
+
+        font-size: 13px;
+
+        top: 15px;
+    }
+}
+
+/* animacion */
+@keyframes slideDown{
+    from{
+        opacity: 0;
+        transform: translate(-50%, -15px);
+    }
+
+    to{
+        opacity: 1;
+        transform: translate(-50%, 0);
+    }
+}
+
+/* responsive */
+@media (max-width: 600px){
+
+    .alert-error{
+        width: 90%;
+        font-size: 13px;
+        padding: 12px 16px;
+        top: 15px;
+    }
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+
+    .left-panel {
+        padding: 20px;
+    }
+
+    .brand h1 {
+        font-size: 28px;
+    }
+
+    .brand p {
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 600px) {
+
+    .container {
+        min-height: 100vh;
+    }
+
+    .left-panel {
+        height: 30%;
+    }
+
+    .right-panel {
+        height: 70%;
+        padding: 20px;
+    }
+
+    .login-card {
+        padding: 25px;
+    }
+
+    .options {
+        flex-direction: column;
+        gap: 10px;
+    }
+}

@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="es" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Historial - StockSólido</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Fuente -->
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet" />
+  <!-- CSS -->
+  <link rel="stylesheet" th:href="@{/css/side_bar.css}" />
+  <link rel="stylesheet" th:href="@{/css/style_general.css}" />
+  <link rel="stylesheet" th:href="@{/css/style_layout.css}" />
+  <link rel="stylesheet" th:href="@{/css/style_modals.css}" />
+  <link rel="stylesheet" th:href="@{/css/style_pag.css}" />
+</head>
+
+<body>
+  <!-- Barra lateral/modal -->
+  <div th:replace="fragments/side_bar :: side_bar"></div>
+  <div th:replace="fragments/modals :: global_modals"></div>
+  <div th:replace="fragments/record_modals :: FiltrarHistorial"></div>
+  <!-- Contenido -->
+  <main class="main-content">
+    <div class="top-bar">
+      <h1>Historial</h1>
+
+      <div class="search-container">
+        <input type="text" id="searchInput" placeholder="Buscar historial..." />
+      </div>
+
+      <button class="secondary-btn" id="filterRecordBtn">Filtrar</button>
+    </div>
+
+    <div class="table-container">
+      <table id="reportsTable">
+        <thead>
+          <tr>
+            <th>Tipo de servicio</th>
+            <th>Fecha</th>
+            <th>Cliente</th>
+            <th>Doc. Cliente</th>
+            <th>No. Servicios</th>
+            <th>Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr th:each="solicitud : ${listaSolicitudes}" th:attr="
+        data-tipo-servicio=${solicitud.servicio != null ? solicitud.servicio.tipoServicio : ''},
+        data-fecha=${solicitud.fecha},
+        data-cliente-nombre=${solicitud.cliente != null ? solicitud.cliente.nombre : ''},
+        data-documento=${solicitud.cliente != null ? solicitud.cliente.documento : ''},
+        data-no-servicios=${solicitud.noServicios}">
+            <td th:text="${solicitud.servicio != null ? solicitud.servicio.tipoServicio : '—'}"></td>
+            <td th:text="${solicitud.fecha}"></td>
+            <td th:text="${solicitud.cliente != null ? solicitud.cliente.nombre : '—'}"></td>
+            <td th:text="${solicitud.cliente != null ? solicitud.cliente.documento : '—'}"></td>
+            <td th:text="${solicitud.noServicios}"></td>
+            <td th:text="${#numbers.formatInteger(solicitud.total, 1, 'POINT')}"></td>
+          </tr>
+        </tbody>
+
+        <!-- Total general al pie de la tabla -->
+        <tfoot>
+          <tr>
+            <td colspan="5"><strong>Total General</strong></td>
+            <td th:text="${#numbers.formatInteger(totalGeneralReporte, 1, 'POINT')}"></td>
+          </tr>
+        </tfoot>
+      </table>
+
+      <!--paginado-->
+      <div th:replace="fragments/pagination :: paginacion(
+    '/private/admin/record',
+    ${currentPage},
+    ${totalPages},
+    ${terminoBusqueda},
+    ${ordenActivo},
+    'tipoServicio',
+    ${tipoServicioActivo},
+    'dummy',
+    null
+)"></div>
+    </div>
+  </main>
+
+  <script th:inline="javascript">
+    /*<![CDATA[*/
+    const tiposServicioRecord = /*[[${tiposServicioJS}]]*/[];
+    /*]]>*/
+  </script>
+
+  <script th:src="@{/js/general.js}"></script>
+  <script th:src="@{/js/modals/record.js}"></script>
+</body>
+
+</html>

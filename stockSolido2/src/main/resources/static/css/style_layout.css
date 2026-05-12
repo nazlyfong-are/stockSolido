@@ -1,0 +1,104 @@
+/* modales globales*/
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 2000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+}
+
+.modal-content {
+    background: white;
+    margin: 6% auto;
+    padding: 25px;
+    width: 450px;
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+    animation: fadeIn 0.2s ease-in-out;
+}
+
+.modal-body p {
+    margin: 8px 0;
+}
+
+.modal-body input {
+    width: 100%;
+    padding: 8px;
+    margin: 6px 0 12px 0;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+}
+
+.close-btn {
+    float: right;
+    font-size: 22px;
+    cursor: pointer;
+}
+
+.modal-btn {
+    padding: 8px 14px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.primary {
+    background-color: #3498db;
+    color: white;
+}
+
+.danger {
+    background-color: #e74c3c;
+    color: white;
+}
+
+.secondary {
+    background-color: #bdc3c7;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: space-between;
+}
+
+@keyframes fadeIn {
+    from { transform: translateY(-10px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+/* responsive*/
+
+@media (max-width: 700px) {
+
+    .modal-content {
+        width: 92%;
+        max-width: 92%;
+        padding: 20px;
+    }
+
+    .modal-actions {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .modal-btn,
+    .btn-guardar {
+        width: 100%;
+    }
+
+    .detail-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+    }
+
+    .detail-value {
+        max-width: 100%;
+        text-align: left;
+    }
+}

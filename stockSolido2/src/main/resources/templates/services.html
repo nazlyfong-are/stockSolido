@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="es" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="_csrf" th:content="${_csrf.token}" />
+  <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+  <title>Servicios - StockSólido</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Fuente -->
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet" />
+
+  <!-- CSS -->
+  <link rel="stylesheet" th:href="@{/css/side_bar.css}" />
+  <link rel="stylesheet" th:href="@{/css/style_general.css}" />
+  <link rel="stylesheet" th:href="@{/css/style_layout.css}" />
+  <link rel="stylesheet" th:href="@{/css/style_modals.css}" />
+  <link rel="stylesheet" th:href="@{/css/style_pag.css}" />
+</head>
+
+<body>
+
+  <div th:replace="~{fragments/side_bar :: side_bar}"></div>
+  <div th:replace="~{fragments/modals :: global_modals}"></div>
+  <div th:replace="~{fragments/services_modals :: AgregarServicio}"></div>
+
+  <main class="main-content">
+
+    <div th:if="${errorServicio}" class="alert-error" th:text="${errorServicio}"></div>
+
+    <div class="top-bar">
+      <h1>Gestión de Servicios</h1>
+
+      <div class="top-actions">
+        <div class="search-container">
+          <input type="text" id="searchInput" placeholder="Buscar servicio..." />
+        </div>
+
+        <!-- SIN onclick -->
+        <button class="primary-btn" id="addServiceBtn">
+          Agregar
+        </button>
+
+        <button class="secondary-btn" id="filterServiceBtn" sec:authorize="hasRole('ADMIN')">
+          Filtrar
+          <span id="ordenIndicador" class="orden-indicador"></span>
+        </button>
+      </div>
+    </div>
+
+    <div class="table-container">
+      <table id="servicesTable">
+        <thead>
+          <tr>
+            <th>Tipo de Servicio</th>
+            <th>Precio Unitario</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr th:each="service : ${listaServicios}" th:attr="
+              data-tipoServicio=${service.tipoServicio},
+              data-precioServicio=${#numbers.formatInteger(service.precioServicio, 1, 'POINT')}">
+
+            <td th:text="${service.tipoServicio}"></td>
+            <td th:text="${#numbers.formatInteger(service.precioServicio, 1, 'POINT')}"></td>
+
+            <td>
+              <!-- SIN onclick -->
+              <button class="action-btn edit"
+                th:attr="
+                  data-id=${service.id},
+                  data-tipo-servicio=${service.tipoServicio},
+                  data-precio-servicio=${service.precioServicio}"
+                sec:authorize="hasRole('ADMIN')">
+                Editar
+              </button>
+
+              <button class="action-btn delete"
+                th:attr="data-id=${service.id}"
+                sec:authorize="hasRole('ADMIN')">
+                Eliminar
+              </button>
+            </td>
+
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- paginacion -->
+      <div th:replace="fragments/pagination :: paginacion(
+    '/private/admin/services',
+    ${currentPage},
+    ${totalPages},
+    ${terminoBusqueda},
+    ${ordenActivo},
+    'dummy',
+    null,
+    'dummy2',
+    null
+)"></div>
+
+    </div>
+  </main>
+
+  <!-- JS -->
+  <script th:src="@{/js/general.js}"></script>
+  <script th:src="@{/js/modals/services.js}"></script>
+
+</body>
+</html>

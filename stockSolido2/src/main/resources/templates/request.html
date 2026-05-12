@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="es" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="_csrf" th:content="${_csrf.token}" />
+  <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+  <title>Solicitudes - StockSólido</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!--CSS-->
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" th:href="@{/css/side_bar.css}" />
+  <link rel="stylesheet" th:href="@{/css/style_general.css}" />
+  <link rel="stylesheet" th:href="@{/css/style_layout.css}" />
+  <link rel="stylesheet" th:href="@{/css/style_modals.css}" />
+  <link rel="stylesheet" th:href="@{/css/style_pag.css}" />
+</head>
+
+<body>
+  <div th:replace="~{fragments/side_bar :: side_bar}"></div>
+  <div th:replace="~{fragments/modals :: global_modals}"></div>
+  <div th:replace="~{fragments/request_modals :: AgregarSolicitud}"></div>
+
+  <main class="main-content">
+    <div th:if="${errorSolicitud}" class="alert-error" th:text="${errorSolicitud}"></div>
+
+    <div class="top-bar">
+      <h1>Gestión de Solicitudes</h1>
+      <div class="top-actions">
+        <div class="search-container">
+          <input type="text" id="searchInput" placeholder="Buscar solicitud..." />
+        </div>
+        <button class="primary-btn" id="addRequestBtn" sec:authorize="hasRole('ADMIN')">Agregar</button>
+        <button class="secondary-btn" id="filterRequestBtn">Filtrar</button>
+      </div>
+    </div>
+
+    <div id="serviciosData"
+         th:attr="data-servicios=${tiposServicioJson}"
+         style="display:none;"></div>
+
+    <div class="table-container">
+      <table id="requestsTable">
+        <thead>
+          <tr>
+            <th>ID Solicitud</th>
+            <th>Cliente</th>
+            <th>Tipo de Servicio</th>
+            <th>No. de Servicios</th>
+            <th>Precio</th>
+            <th>Fecha</th>
+            <th>Hora</th>
+            <th>Estado</th>
+            <th>Descripción</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr th:each="request : ${listaSolicitudes}" th:attr="
+              data-id=${request.idSolicitud},
+              data-cliente-nombre=${request.cliente != null ? request.cliente.nombre : ''},
+              data-tipo-servicio=${request.servicio != null ? request.servicio.tipoServicio : ''},
+              data-no-servicios=${request.noServicios},
+              data-fecha=${request.fecha},
+              data-hora=${request.hora},
+              data-descripcion=${request.descripcion},
+              data-estado=${request.estado}">
+            <td th:text="${request.idSolicitud}"></td>
+            <td th:text="${request.cliente != null ? request.cliente.nombre : '—'}"></td>
+            <td th:text="${request.servicio != null ? request.servicio.tipoServicio : '—'}"></td>
+            <td th:text="${request.noServicios}"></td>
+            <td th:text="${#numbers.formatInteger(request.total, 1, 'POINT')}"></td>
+            <td th:text="${request.fecha}"></td>
+            <td th:text="${request.hora}"></td>
+            <td th:text="${request.estado}"></td>
+            <td>
+    <span class="descripcion-corta" th:text="${request.descripcion}"></span>
+</td>
+            <td>
+              <button class="action-btn edit" th:attr="
+                  data-id=${request.id},
+                  data-cliente-id=${request.cliente != null ? request.cliente.clienteId : ''},
+                  data-cliente-nombre=${request.cliente != null ? request.cliente.nombre : ''},
+                  data-cliente-documento=${request.cliente != null ? request.cliente.documento : ''},
+                  data-cliente-tipo=${request.cliente != null ? request.cliente.tipo : ''},
+                  data-cliente-correo=${request.cliente != null ? request.cliente.correo : ''},
+                  data-cliente-telefono=${request.cliente != null ? request.cliente.telefono : ''},
+                  data-tipo-servicio=${request.servicio != null ? request.servicio.tipoServicio : ''},
+                  data-servicio-precio=${request.servicio != null ? request.servicio.precioUnitario : '0'},
+                  data-no-servicios=${request.noServicios},
+                  data-fecha=${request.fecha},
+                  data-hora=${request.hora},
+                  data-descripcion=${request.descripcion},
+                  data-estado=${request.estado}">
+                Editar
+              </button>
+              <button class="action-btn delete"
+                      th:attr="data-id=${request.id}"
+                      sec:authorize="hasRole('ADMIN')">
+                Eliminar
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div th:replace="fragments/pagination :: paginacion(
+          '/private/admin/request',
+          ${currentPage},
+          ${totalPages},
+          ${terminoBusqueda},
+          ${ordenActivo},
+          'estado',
+          ${estadoActivo},
+          'tipoServicio',
+          ${tipoServicioActivo}
+      )"></div>
+    </div>
+  </main>
+
+  <!--JS-->
+  <script th:src="@{/js/general.js}"></script>
+  <script th:src="@{/js/modals/request.js}"></script>
+</body>
+</html>

@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="es" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="_csrf" th:content="${_csrf.token}" />
+  <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+  <title>Clientes - StockSólido</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Fuente -->
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet" />
+
+  <!-- CSS -->
+  <link rel="stylesheet" th:href="@{/css/side_bar.css}" />
+  <link rel="stylesheet" th:href="@{/css/style_general.css}" />
+  <link rel="stylesheet" th:href="@{/css/style_layout.css}" />
+  <link rel="stylesheet" th:href="@{/css/style_modals.css}" />
+  <link rel="stylesheet" th:href="@{/css/style_pag.css}" />
+
+</head>
+
+<body>
+  <!-- Barra lateral/modal -->
+  <div th:replace="~{fragments/side_bar :: side_bar}"></div>
+  <div th:replace="~{fragments/modals :: global_modals}"></div>
+  <div th:replace="~{fragments/customers_modals :: AgregarCliente}"></div>
+
+  <!-- Contenido -->
+  <main class="main-content">
+    <div th:if="${errorCliente}" class="alert-error" th:text="${errorCliente}"></div>
+
+    <div class="top-bar">
+      <h1>Gestión de Clientes</h1>
+      <div class="top-actions">
+
+        <div class="search-container">
+          <input type="text" id="searchInput" placeholder="Buscar cliente..." />
+        </div>
+
+        <button class="primary-btn" id="addClientBtn" sec:authorize="hasRole('ADMIN')">Agregar</button>
+        <button class="secondary-btn" id="filterClientBtn">Filtrar</button>
+
+      </div>
+    </div>
+
+    <div class="table-container">
+      <table id="clientesTable">
+        <thead>
+          <tr>
+            <th>Tipo</th>
+            <th>Documento / NIT</th>
+            <th>Nombre</th>
+            <th>Correo</th>
+            <th>Teléfono</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr th:each="customer : ${listaClientes}" th:attr="
+              data-tipo=${customer.tipo},
+              data-documento=${customer.documento},
+              data-nombre=${customer.nombre},
+              data-correo=${customer.correo},
+              data-telefono=${customer.telefono}">
+
+            <td th:text="${customer.tipo}"></td>
+            <td th:text="${customer.documento}"></td>
+            <td th:text="${customer.nombre}"></td>
+            <td th:text="${customer.correo}"></td>
+            <td th:text="${customer.telefono}"></td>
+            <td>
+              <button class="action-btn edit" th:attr="
+                 data-id=${customer.id},
+                 data-tipo=${customer.tipo},
+                 data-documento=${customer.documento},
+                 data-nombre=${customer.nombre},
+                 data-correo=${customer.correo},
+                 data-telefono=${customer.telefono}"
+                 sec:authorize="hasRole('ADMIN')">
+                Editar
+              </button>
+              <button class="action-btn delete"
+                th:attr="data-id=${customer.id}"
+                sec:authorize="hasRole('ADMIN')">Eliminar</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!--paginado-->
+      <div th:replace="fragments/pagination :: paginacion(
+    '/private/admin/customers',
+    ${currentPage},
+    ${totalPages},
+    ${terminoBusqueda},
+    ${tipoActivo},
+    'tipo',
+    ${tipoActivo},
+    'dummy',
+    null
+)"></div>
+
+    </div>
+  </main>
+
+  <!-- JS -->
+  <script th:src="@{/js/general.js}"></script>
+  <script th:src="@{/js/modals/customers.js}"></script>
+</body>
+
+</html>
