@@ -102,7 +102,7 @@ public class SecurityConfig {
         http
             // ── Reglas de acceso ──────────────────────────────────────
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/login", "/css/**", "/js/**", "/img/**", "/error").permitAll()
+                .requestMatchers("/login", "/css/**", "/js/**", "/img/**", "/private/admin/*.js", "/private/admin/*.css", "/error").permitAll()
                 .requestMatchers("/private/admin/**").hasRole("ADMIN")
                 .anyRequest().authenticated()
             )
@@ -142,13 +142,10 @@ public class SecurityConfig {
                 .contentSecurityPolicy(csp -> csp
                     .policyDirectives(
                         "default-src 'self'; " +
-                        "script-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; " +
+                        "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com;" +
                         "style-src 'self' https://fonts.googleapis.com https://cdn.jsdelivr.net 'unsafe-inline'; " +
                         "font-src 'self' https://fonts.gstatic.com; " +
                         "img-src 'self' data: https://*.powerbi.com; " +
-                        // FIX #9: blob: es necesario para que el iframe de vista previa de PDF funcione.
-                        // El JS genera una Blob URL (blob:http://...) a partir del PDF descargado
-                        // y la asigna al src del iframe. Sin blob: la CSP bloquea el iframe.
                         "frame-src 'self' blob: https://app.powerbi.com; " +
                         "connect-src 'self' https://cdn.jsdelivr.net https://*.powerbi.com;"
                     )
