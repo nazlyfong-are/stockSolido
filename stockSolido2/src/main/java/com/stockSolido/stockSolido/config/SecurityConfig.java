@@ -102,11 +102,14 @@ public class SecurityConfig {
         http
             // ── Reglas de acceso ──────────────────────────────────────
             .authorizeHttpRequests(auth -> auth
-                // ✅ Cubre /private/admin/ y cualquier subdirectorio
-.requestMatchers("/login", "/css/**", "/js/**", "/img/**", "/private/admin/**/*.js", "/private/admin/**/*.css", "/error").permitAll()
-                .requestMatchers("/private/admin/**").hasRole("ADMIN")
-                .anyRequest().authenticated()
-            )
+    .requestMatchers(
+        "/login", "/css/**", "/js/**", "/img/**",
+        "/private/admin/**",   // ← cubre JS, CSS y todo lo estático
+        "/error"
+    ).permitAll()
+    .requestMatchers("/private/admin/**").hasRole("ADMIN")
+    .anyRequest().authenticated()
+)
 
             // ── Formulario de login ───────────────────────────────────
             .formLogin(form -> form
