@@ -18,46 +18,13 @@ import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
 import org.springframework.http.HttpStatus;
 
-/**
- * ─────────────────────────────────────────────────────────────────
- * Configuración central de Spring Security.
- *
- * FIX #7 — Credenciales hardcodeadas eliminadas:
- *   Los usuarios y contraseñas se leen ahora de variables de entorno
- *   (o de application.properties con valores cifrados en producción).
- *   Variables requeridas:
- *     APP_ADMIN_USER      → nombre de usuario ADMIN      (default: "admin")
- *     APP_ADMIN_PASSWORD  → contraseña ADMIN             (sin default; obligatoria)
- *     APP_POWERBI_USER    → nombre de usuario POWERBI    (default: "powerbi")
- *     APP_POWERBI_PASSWORD→ contraseña POWERBI           (sin default; obligatoria)
- *
- *   En desarrollo local se pueden definir en application.properties:
- *     app.admin.username=miUsuario
- *     app.admin.password=miContrasena
- *     app.powerbi.username=pbiUser
- *     app.powerbi.password=pbiPass
- *
- *   En producción se deben establecer como variables de entorno del
- *   sistema o secretos del gestor de configuración (Vault, AWS Secrets, etc.)
- *   y NUNCA deben commitearse al repositorio.
- *
- * FIX #8 — CSP sin 'unsafe-inline':
- *   'unsafe-inline' en script-src y style-src anulaba prácticamente
- *   toda la protección XSS que ofrece la Content Security Policy.
- *   Se eliminó de ambas directivas.
- *
- * FIX #9 — blob: añadido a frame-src:
- *   La vista previa de PDFs crea una Blob URL (blob:http://localhost/...)
- *   y la carga dentro de un <iframe>. Sin blob: en frame-src la CSP
- *   bloqueaba el iframe impidiendo ver la vista previa.
- * ─────────────────────────────────────────────────────────────────
- */
+
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
 
-    // ─── Credenciales inyectadas desde variables de entorno / properties ──
+    //credenciales inyectadas desde variables de entorno / properties
     @Value("${app.admin.username:admin}")
     private String adminUsername;
 
@@ -70,11 +37,7 @@ public class SecurityConfig {
     @Value("${app.powerbi.password}")
     private String powerbiPassword;
 
-    // ─── 1. Cadena para la API de PowerBI ────────────────────────────
-    /**
-     * Protege /api/powerbi/** con HTTP Basic sin estado (STATELESS).
-     * CSRF deshabilitado porque las peticiones son stateless.
-     */
+    //cadena para la API de PowerBI
     @Bean
     @Order(1)
     public SecurityFilterChain powerBiFilterChain(HttpSecurity http) throws Exception {
@@ -95,23 +58,19 @@ public class SecurityConfig {
         return http.build();
     }
 
-    // ─── 2. Cadena principal para la aplicación web ──────────────────
+    //cadena principal para la aplicacion web
     @Bean
     @Order(2)
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            // ── Reglas de acceso ──────────────────────────────────────
+            //reglas de acceso
             .authorizeHttpRequests(auth -> auth
-    .requestMatchers(
-        "/login", "/css/**", "/js/**", "/img/**",
-        "/private/admin/**",   // ← cubre JS, CSS y todo lo estático
-        "/error"
-    ).permitAll()
-    .requestMatchers("/private/admin/**").hasRole("ADMIN")
-    .anyRequest().authenticated()
-)
+                .requestMatchers("/login", "/css/**", "/js/**", "/img/**", "/error").permitAll()
+                .requestMatchers("/private/admin/**").hasRole("ADMIN")
+                .anyRequest().authenticated()
+            )
 
-            // ── Formulario de login ───────────────────────────────────
+            //formulario de login
             .formLogin(form -> form
                 .loginPage("/login")
                 .loginProcessingUrl("/login")
@@ -120,8 +79,8 @@ public class SecurityConfig {
                 .permitAll()
             )
 
-            // ── Cierre de sesión ──────────────────────────────────────
-            .logout(logout -> logout
+            //cierre de sesion
+                .logout(logout -> logout
                 .logoutUrl("/logout")
                 .logoutSuccessUrl("/login?logout")
                 .invalidateHttpSession(true)
@@ -129,14 +88,14 @@ public class SecurityConfig {
                 .permitAll()
             )
 
-            // ── Gestión de sesiones ───────────────────────────────────
+            //gestion de sesiones
             .sessionManagement(session -> session
                 .invalidSessionUrl("/login?sessionExpired")
                 .maximumSessions(1)
                     .expiredUrl("/login?sessionExpired")
             )
 
-            // ── Cabeceras de seguridad HTTP ───────────────────────────
+            //cabeceras de seguridad HTTP
             .headers(headers -> headers
                 .contentTypeOptions(contentType -> {})
                 .frameOptions(frame -> frame.deny())
@@ -146,7 +105,7 @@ public class SecurityConfig {
                 .contentSecurityPolicy(csp -> csp
                     .policyDirectives(
                         "default-src 'self'; " +
-                        "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com;" +
+                        "script-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; " +
                         "style-src 'self' https://fonts.googleapis.com https://cdn.jsdelivr.net 'unsafe-inline'; " +
                         "font-src 'self' https://fonts.gstatic.com; " +
                         "img-src 'self' data: https://*.powerbi.com; " +
@@ -159,7 +118,7 @@ public class SecurityConfig {
         return http.build();
     }
 
-    // ─── 3. Usuarios en memoria ───────────────────────────────────────
+    //usuarios en memoria
     @Bean
     public UserDetailsService userDetailsService(PasswordEncoder passwordEncoder) {
         return new InMemoryUserDetailsManager(
@@ -176,7 +135,7 @@ public class SecurityConfig {
         );
     }
 
-    // ─── 4. Codificador de contraseñas ────────────────────────────────
+    //encriptar contraseña
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
