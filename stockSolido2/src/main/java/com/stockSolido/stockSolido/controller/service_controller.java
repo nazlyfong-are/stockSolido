@@ -1,6 +1,7 @@
 package com.stockSolido.stockSolido.controller;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -22,7 +23,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.stockSolido.stockSolido.model.PrecioHistorico;
+import com.stockSolido.stockSolido.model.requestModel;
 import com.stockSolido.stockSolido.model.servicesModel;
+import com.stockSolido.stockSolido.service.requestService;
 import com.stockSolido.stockSolido.service.servicesService;
 
 @Controller
@@ -31,6 +34,9 @@ public class service_controller {
 
     @Autowired
     private servicesService serviceServi;
+
+    @Autowired
+    private requestService RequestService;
 
     //listar
     @PreAuthorize("hasRole('ADMIN')")
@@ -43,7 +49,6 @@ public class service_controller {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "6") int size) {
 
-        
         Pageable pageable;
         if ("asc".equals(orden)) {
             pageable = PageRequest.of(page, size, Sort.by("precioServicio").ascending());
@@ -108,20 +113,19 @@ public class service_controller {
             servicio.getHistorialPrecios().add(precioInicial);
 
         } else {
-            //editar= añadir al historial solo si el precio cambio
+            // MOD-4: preservar historial siempre, no solo cuando cambia el precio
             servicesModel existente = serviceServi.buscar(servicio.getId());
-            if (existente != null
-                    && !existente.getPrecioServicio().equals(servicio.getPrecioServicio())) {
-
-                //conservar historial previo y añadir el nuevo precio
+            if (existente != null) {
                 servicio.setHistorialPrecios(existente.getHistorialPrecios());
 
-                PrecioHistorico nuevoPrecio = new PrecioHistorico(
-                    servicio.getPrecioServicio(),
-                    LocalDate.now(),
-                    "Actualización de precio"
-                );
-                servicio.getHistorialPrecios().add(nuevoPrecio);
+                if (!existente.getPrecioServicio().equals(servicio.getPrecioServicio())) {
+                    PrecioHistorico nuevoPrecio = new PrecioHistorico(
+                        servicio.getPrecioServicio(),
+                        LocalDate.now(),
+                        "Actualización de precio"
+                    );
+                    servicio.getHistorialPrecios().add(nuevoPrecio);
+                }
             }
         }
 
@@ -129,12 +133,34 @@ public class service_controller {
         return "redirect:/private/admin/services";
     }
 
-    //eliminar
+    // CAMBIO CLAVE 1: ResponseEntity<String> en lugar de ResponseEntity<Void>
+    // Con Void el cuerpo del 409 llega vacío al frontend — no se puede leer el mensaje.
     @PreAuthorize("hasRole('ADMIN')")
     @ResponseBody
     @DeleteMapping("/eliminarServicio/{id}")
-    public ResponseEntity<Void> eliminarServicio(@PathVariable String id) {
+    public ResponseEntity<String> eliminarServicio(@PathVariable String id) {
+
+        servicesModel servicio = serviceServi.buscar(id);
+
+        if (servicio != null) {
+            String tipo = servicio.getTipoServicio();
+            List<requestModel> todas = RequestService.listar();
+
+            boolean tieneActivas = todas.stream()
+                .filter(s -> s.getServicio() != null
+                        && tipo.equals(s.getServicio().getTipoServicio()))
+                .anyMatch(s -> !"Finalizado".equals(s.getEstado()));
+
+            if (tieneActivas) {
+                return ResponseEntity
+                    .status(409)
+                    .body("No se puede eliminar \"" + tipo + "\" porque tiene solicitudes " +
+                          "activas (En espera o En proceso). " +
+                          "Finalízalas o elimínalas primero.");
+            }
+        }
+
         serviceServi.eliminar(id);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok("eliminado");
     }
 }

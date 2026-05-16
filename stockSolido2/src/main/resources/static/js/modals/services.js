@@ -120,11 +120,29 @@ function confirmarEliminar(btn) {
             method: "DELETE",
             headers: { [csrfHeader]: csrfToken }
         })
-        .then(res => {
-            if (res.ok) { cerrarModal("deleteModal"); location.reload(); }
-            else        { alert("Error al eliminar el servicio."); }
+        .then(async res => {
+            // CAMBIO CLAVE 2: leer el texto PRIMERO, cerrar el modal DESPUÉS.
+            // Antes se cerraba el modal antes de mostrar el alert,
+            // lo que en algunos navegadores cancela el alert.
+            const texto = await res.text();
+
+            if (res.ok) {
+                cerrarModal("deleteModal");
+                location.reload();
+            } else if (res.status === 409) {
+                cerrarModal("deleteModal");
+                // Pequeño delay para que el modal termine de cerrar
+                // antes de que el alert bloquee el hilo del navegador
+                setTimeout(() => alert(texto), 100);
+            } else {
+                cerrarModal("deleteModal");
+                setTimeout(() => alert("Error al eliminar el servicio."), 100);
+            }
         })
-        .catch(err => console.error("Error:", err));
+        .catch(err => {
+            cerrarModal("deleteModal");
+            console.error("Error:", err);
+        });
     });
 
     abrirModal("deleteModal");

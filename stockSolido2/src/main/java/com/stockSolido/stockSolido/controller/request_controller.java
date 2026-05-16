@@ -24,6 +24,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.stockSolido.stockSolido.config.SolicitudValidator;
 import com.stockSolido.stockSolido.model.customersModel;
 import com.stockSolido.stockSolido.model.requestModel;
+import com.stockSolido.stockSolido.model.SolicitudEmbebida;    // FIX 2
 import com.stockSolido.stockSolido.model.servicesModel;
 import com.stockSolido.stockSolido.service.customersService;
 import com.stockSolido.stockSolido.service.requestService;
@@ -91,8 +92,6 @@ public class request_controller {
         model.addAttribute("listaClientes", CustomersService.listar());
 
         List<servicesModel> listaServicios = ServicesService.listar();
-
-        //para el <select> del modal de agregar/editar
         model.addAttribute("tiposServicio", listaServicios);
 
         List<Map<String, Object>> tiposParaJS = new ArrayList<>();
@@ -106,12 +105,11 @@ public class request_controller {
             }
         }
 
-        //serializar a JSON String para pasarlo como data-attribute en el HTML
         String tiposServicioJson = "[]";
         try {
             tiposServicioJson = objectMapper.writeValueAsString(tiposParaJS);
         } catch (JsonProcessingException e) {
-            // Si falla la serializacion se usa "[]" por defecto (ya inicializado)
+            // usa "[]" por defecto
         }
         model.addAttribute("tiposServicioJson", tiposServicioJson);
 
@@ -136,7 +134,14 @@ public class request_controller {
             return "redirect:/private/admin/request";
         }
 
-        if (solicitud.getId() == null || solicitud.getId().trim().isEmpty()) {
+        boolean esNueva = solicitud.getId() == null || solicitud.getId().trim().isEmpty();
+
+        if (esNueva) {
+            // =========================================================
+            // FIX 3 — ID correlativo: se calcula UNA vez y se loguea.
+            // Nota: para producción con concurrencia real, reemplazar por
+            // una colección "counters" en MongoDB con findAndModify.
+            // =========================================================
             solicitud.setId(null);
             int siguienteId = RequestService.listar()
                 .stream()
@@ -151,7 +156,49 @@ public class request_controller {
             }
         }
 
-        RequestService.guardar(solicitud);
+        // Guardar la solicitud en su colección
+        requestModel guardada = RequestService.guardar(solicitud);
+
+        // =========================================================
+        // FIX 2 — Sincronizar el array de solicitudes dentro del cliente
+        // Tanto en creación como en edición se actualiza el documento
+        // del cliente para mantener consistencia de datos.
+        // =========================================================
+        if (guardada.getCliente() != null
+                && guardada.getCliente().getClienteId() != null
+                && !guardada.getCliente().getClienteId().trim().isEmpty()) {
+
+            customersModel cliente = CustomersService.buscar(guardada.getCliente().getClienteId());
+
+            if (cliente != null) {
+                // Construir el objeto embebido actualizado
+                SolicitudEmbebida embebida = new SolicitudEmbebida();
+                embebida.setIdSolicitud(guardada.getIdSolicitud());
+                embebida.setTipoServicio(
+                    guardada.getServicio() != null ? guardada.getServicio().getTipoServicio() : null
+                );
+                embebida.setDescripcion(guardada.getDescripcion());
+                embebida.setEstado(guardada.getEstado());
+                embebida.setFecha(guardada.getFecha());
+                embebida.setHora(guardada.getHora());
+                embebida.setNoServicios(guardada.getNoServicios());
+                embebida.setTotal(guardada.getTotal());
+
+                if (esNueva) {
+                    // Agregar nueva entrada al array
+                    cliente.getSolicitudes().add(embebida);
+                } else {
+                    // Reemplazar la entrada existente por idSolicitud
+                    cliente.getSolicitudes().removeIf(
+                        s -> s.getIdSolicitud() == guardada.getIdSolicitud()
+                    );
+                    cliente.getSolicitudes().add(embebida);
+                }
+
+                CustomersService.guardar(cliente);
+            }
+        }
+
         return "redirect:/private/admin/request";
     }
 

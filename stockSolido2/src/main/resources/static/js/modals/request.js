@@ -1,8 +1,8 @@
-//lgica de modales y formulario de solicitudes
+// lgica de modales y formulario de solicitudes
 
 let _debounceTimerRequest = null;
 
-//lee los tipos de servicio desde el data-attribute
+// lee los tipos de servicio desde el data-attribute
 function cargarTiposServicio() {
     try {
         const el = document.getElementById("serviciosData");
@@ -17,7 +17,7 @@ function cargarTiposServicio() {
     }
 }
 
-//HELPERS MODALES
+// HELPERS MODALES
 
 function actualizarCliente(select) {
     const op = select.options[select.selectedIndex];
@@ -41,6 +41,15 @@ function calcularTotal() {
     document.getElementById("servicioPrecioHidden").value = precio;
 }
 
+function limpiarHiddenCliente() {
+    ["clienteIdHidden","clienteNombreHidden","clienteDocumentoHidden",
+     "clienteTipoHidden","clienteCorreoHidden","clienteTelefonoHidden"]
+        .forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.value = "";
+        });
+}
+
 function abrirModalAgregarSolicitud() {
     document.getElementById("modalTitleSolicitud").innerText  = "Agregar Solicitud";
     document.getElementById("btnGuardarSolicitud").innerText  = "Guardar";
@@ -51,6 +60,16 @@ function abrirModalAgregarSolicitud() {
     document.getElementById("descripcion").value    = "";
     document.getElementById("estado").value         = "En espera";
     document.getElementById("contadorDescripcion").innerText = "0 / 150";
+
+    // Limpiar el select visual y los hidden del cliente
+    const clienteSelect = document.getElementById("clienteSelect");
+    if (clienteSelect) clienteSelect.value = "";
+    limpiarHiddenCliente();
+
+    // Ocultar error de cliente si estaba visible
+    const errCliente = document.getElementById("errorCliente");
+    if (errCliente) errCliente.style.display = "none";
+
     abrirModal("modalSolicitud");
 }
 
@@ -59,17 +78,25 @@ function abrirModalEditarSolicitud(btn) {
     document.getElementById("btnGuardarSolicitud").innerText  = "Actualizar";
     document.getElementById("solicitudId").value              = btn.dataset.id;
 
-    document.getElementById("clienteIdHidden").value          = btn.dataset.clienteId;
-    document.getElementById("clienteNombreHidden").value      = btn.dataset.clienteNombre;
-    document.getElementById("clienteDocumentoHidden").value   = btn.dataset.clienteDocumento;
-    document.getElementById("clienteTipoHidden").value        = btn.dataset.clienteTipo;
-    document.getElementById("clienteCorreoHidden").value      = btn.dataset.clienteCorreo;
-    document.getElementById("clienteTelefonoHidden").value    = btn.dataset.clienteTelefono;
+    // =========================================================
+    // FIX 5 — Cargar los hidden del cliente SIEMPRE desde los
+    // data-* del botón, no solo cuando el usuario cambia el select.
+    // Esto garantiza que los datos del cliente lleguen al servidor
+    // aunque el usuario no toque el select durante la edición.
+    // =========================================================
+    document.getElementById("clienteIdHidden").value          = btn.dataset.clienteId       || "";
+    document.getElementById("clienteNombreHidden").value      = btn.dataset.clienteNombre   || "";
+    document.getElementById("clienteDocumentoHidden").value   = btn.dataset.clienteDocumento|| "";
+    document.getElementById("clienteTipoHidden").value        = btn.dataset.clienteTipo     || "";
+    document.getElementById("clienteCorreoHidden").value      = btn.dataset.clienteCorreo   || "";
+    document.getElementById("clienteTelefonoHidden").value    = btn.dataset.clienteTelefono || "";
 
+    // Sincronizar visualmente el select con el cliente actual
     const clienteSelect = document.getElementById("clienteSelect");
     if (clienteSelect && btn.dataset.clienteId) {
         clienteSelect.value = btn.dataset.clienteId;
         if (!clienteSelect.value) {
+            // Fallback: buscar por nombre si el ID no coincide
             Array.from(clienteSelect.options).forEach(opt => {
                 if (opt.getAttribute("data-nombre") === btn.dataset.clienteNombre) {
                     clienteSelect.value = opt.value;
@@ -86,6 +113,10 @@ function abrirModalEditarSolicitud(btn) {
     document.getElementById("hora").value                     = btn.dataset.hora;
     document.getElementById("descripcion").value              = btn.dataset.descripcion;
     document.getElementById("estado").value                   = btn.dataset.estado;
+
+    // Ocultar error de cliente si estaba visible
+    const errCliente = document.getElementById("errorCliente");
+    if (errCliente) errCliente.style.display = "none";
 
     calcularTotal();
     abrirModal("modalSolicitud");
@@ -110,7 +141,7 @@ function confirmarEliminar(btn) {
     abrirModal("deleteModal");
 }
 
-//filtro
+// filtro
 
 function cerrarFiltro() {
     cerrarModal("filterRequestModal");
@@ -175,7 +206,6 @@ function mostrarPaso2(tipo) {
             return;
         }
 
-        //menu desplegable
         const wrapper = document.createElement("div");
         wrapper.className = "filter-select-wrapper";
 
@@ -183,7 +213,6 @@ function mostrarPaso2(tipo) {
         select.id        = "fo-tipoServicioSelect";
         select.className = "filter-select";
 
-        //opcion placeholder
         const placeholder = document.createElement("option");
         placeholder.value    = "";
         placeholder.textContent = "Seleccione un servicio...";
@@ -207,7 +236,6 @@ function mostrarPaso2(tipo) {
             }
         });
 
-        //activar btn solo cuando el usuario elige una opcion
         select.addEventListener("change", () => {
             applyBtn.disabled = !select.value;
             applyBtn.classList.toggle("filter-apply-btn--active", !!select.value);
@@ -244,7 +272,7 @@ function limpiarFiltro() {
     window.location.href = url.toString();
 }
 
-//BUSQUEDA
+// BUSQUEDA
 
 function buscarSolicitudes(termino) {
     const url = new URL(window.location.href);
@@ -257,13 +285,17 @@ function buscarSolicitudes(termino) {
     window.location.href = url.toString();
 }
 
-//VALIDACION DE FECHA Y HORA
+// VALIDACION DE FECHA Y HORA
 
-function validarFecha(fecha) {
+function validarFecha(fecha, esEdicion) {
     if (!fecha) return "La fecha es obligatoria.";
-    const hoy = new Date(); hoy.setHours(0, 0, 0, 0);
+    // FIX 4 (lado cliente): solo bloquear pasado si es nueva solicitud
+    if (!esEdicion) {
+        const hoy = new Date(); hoy.setHours(0, 0, 0, 0);
+        const sel = new Date(fecha + "T00:00:00");
+        if (sel < hoy) return "No se pueden agendar solicitudes en fechas pasadas.";
+    }
     const sel = new Date(fecha + "T00:00:00");
-    if (sel < hoy)           return "No se pueden agendar solicitudes en fechas pasadas.";
     if (sel.getDay() === 0)  return "No se pueden agendar solicitudes los domingos.";
     return null;
 }
@@ -358,17 +390,34 @@ document.addEventListener("DOMContentLoaded", function () {
         form.addEventListener("submit", function (e) {
             limpiarErroresSolicitud();
             let valido = true;
-            const errF = validarFecha(document.getElementById("fecha").value);
+
+            // FIX 5 — Verificar que el cliente esté cargado en los hidden
+            const clienteIdVal = document.getElementById("clienteIdHidden")?.value;
+            if (!clienteIdVal || clienteIdVal.trim() === "") {
+                const errCliente = document.getElementById("errorCliente");
+                if (errCliente) errCliente.style.display = "block";
+                valido = false;
+            }
+
+            // FIX 4 (cliente) — detectar si es edición para no bloquear fecha pasada
+            const solicitudId = document.getElementById("solicitudId")?.value;
+            const esEdicion = solicitudId && solicitudId.trim() !== "";
+
+            const errF = validarFecha(document.getElementById("fecha").value, esEdicion);
             if (errF) { mostrarErrorSolicitud("errorFecha", errF); valido = false; }
+
             const errH = validarHora(document.getElementById("hora").value);
             if (errH) { mostrarErrorSolicitud("errorHora",  errH); valido = false; }
+
             if (!valido) e.preventDefault();
         });
     }
 
     document.getElementById("fecha")?.addEventListener("change", function () {
         limpiarErroresSolicitud();
-        const err = validarFecha(this.value);
+        const solicitudId = document.getElementById("solicitudId")?.value;
+        const esEdicion = solicitudId && solicitudId.trim() !== "";
+        const err = validarFecha(this.value, esEdicion);
         if (err) mostrarErrorSolicitud("errorFecha", err);
     });
 

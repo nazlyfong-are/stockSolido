@@ -20,7 +20,11 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.stockSolido.stockSolido.config.ClienteValidator;
 import com.stockSolido.stockSolido.model.customersModel;
+import com.stockSolido.stockSolido.model.requestModel;
 import com.stockSolido.stockSolido.service.customersService;
+import com.stockSolido.stockSolido.service.requestService;   // MOD-1
+
+import java.util.List;                                        // MOD-1
 
 @Controller
 @RequestMapping("/private/admin")
@@ -32,7 +36,11 @@ public class customers_controller {
     @Autowired
     private ClienteValidator clienteValidator;
 
-    //listar - buscar cliente
+    // MOD-1: inyectar requestService para eliminar solicitudes huérfanas
+    @Autowired
+    private requestService RequestService;
+
+    // listar - buscar cliente
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/customers")
     public String mostrarClientes(
@@ -45,7 +53,6 @@ public class customers_controller {
 
         Pageable pageable = PageRequest.of(page, size);
 
-        //seleccion de consulta segun los filtros
         Page<customersModel> paginadoClientes;
 
         if (tipo != null && !tipo.isEmpty() && busqueda != null && !busqueda.isEmpty()) {
@@ -58,7 +65,6 @@ public class customers_controller {
             paginadoClientes = CustomersService.obtenerPaginados(null, pageable);
         }
 
-        //datos paginados para la vista
         model.addAttribute("listaClientes",   paginadoClientes.getContent());
         model.addAttribute("currentPage",     paginadoClientes.getNumber());
         model.addAttribute("totalPages",      paginadoClientes.getTotalPages());
@@ -66,7 +72,6 @@ public class customers_controller {
         model.addAttribute("terminoBusqueda", busqueda);
         model.addAttribute("tipoActivo",      tipo);
 
-        //precarga el modal
         if (idCliente != null) {
             model.addAttribute("clienteActual", CustomersService.buscar(idCliente));
             model.addAttribute("tituloModal",   "Editar Cliente");
@@ -78,7 +83,7 @@ public class customers_controller {
         return "customers";
     }
 
-    //guardar o actualizar
+    // guardar o actualizar
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/guardarCliente")
     public String guardarCliente(
@@ -87,20 +92,43 @@ public class customers_controller {
 
         boolean esNuevo = cliente.getId() == null || cliente.getId().trim().isEmpty();
 
-        //validacion del formato
+        // =========================================================
+        // MOD-2 — Validar documento también en edición.
+        //
+        // ANTES: el listener JS hacía "if (id) return" y saltaba la
+        //        validación completa al editar. El backend tampoco
+        //        revalidaba el documento en edición.
+        //
+        // AHORA: clienteValidator.validar() se ejecuta siempre.
+        //        El validador ya comprueba formato de doc/teléfono/correo.
+        // =========================================================
         String errorFormato = clienteValidator.validar(cliente);
         if (errorFormato != null) {
             redirectAttrs.addFlashAttribute("errorCliente", errorFormato);
             return "redirect:/private/admin/customers";
         }
 
-        //validacion de duplicados solamente creacion
         if (esNuevo) {
-            cliente.setId(null); // garantiza que MongoDB genere el ID
+            cliente.setId(null);
             if (CustomersService.existePorDocumento(cliente.getDocumento())) {
                 redirectAttrs.addFlashAttribute("errorCliente",
                     "Ya existe un cliente registrado con el documento: " + cliente.getDocumento());
                 return "redirect:/private/admin/customers";
+            }
+        } else {
+            // En edición: si el documento cambió, verificar que el nuevo no esté en uso
+            // por OTRO cliente (no por el mismo que se está editando)
+            customersModel existente = CustomersService.buscar(cliente.getId());
+            if (existente != null
+                    && !existente.getDocumento().equals(cliente.getDocumento())
+                    && CustomersService.existePorDocumento(cliente.getDocumento())) {
+                redirectAttrs.addFlashAttribute("errorCliente",
+                    "Ya existe otro cliente con el documento: " + cliente.getDocumento());
+                return "redirect:/private/admin/customers";
+            }
+            // Preservar el array de solicitudes embebidas del cliente
+            if (existente != null) {
+                cliente.setSolicitudes(existente.getSolicitudes());
             }
         }
 
@@ -108,11 +136,30 @@ public class customers_controller {
         return "redirect:/private/admin/customers";
     }
 
-    //eliminar
+    // eliminar
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/eliminarCliente/{id}")
     @ResponseBody
     public ResponseEntity<Void> eliminarCliente(@PathVariable String id) {
+
+        // =========================================================
+        // MOD-1 — Eliminar en cascada: borrar también todas las
+        //          solicitudes de este cliente en la colección "solicitud".
+        //
+        // ANTES: solo se borraba el documento del cliente. Las solicitudes
+        //        quedaban huérfanas con un clienteId que ya no existe,
+        //        contaminando el historial y los reportes de totales.
+        //
+        // AHORA: primero se eliminan todas sus solicitudes, luego el cliente.
+        // =========================================================
+        List<requestModel> todasLasSolicitudes = RequestService.listar();
+        for (requestModel solicitud : todasLasSolicitudes) {
+            if (solicitud.getCliente() != null
+                    && id.equals(solicitud.getCliente().getClienteId())) {
+                RequestService.eliminar(solicitud.getId());
+            }
+        }
+
         CustomersService.eliminar(id);
         return ResponseEntity.ok().build();
     }

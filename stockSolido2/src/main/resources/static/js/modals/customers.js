@@ -1,4 +1,4 @@
-//LOGIC DE MODALES Y FORMULARIO DE CLIENTES
+// LOGIC DE MODALES Y FORMULARIO DE CLIENTES
 
 let _debounceTimerCustomers = null;
 
@@ -11,18 +11,25 @@ function mostrarErrorModal(mensaje) {
         document.getElementById("formCliente")?.prepend(error);
     }
     error.textContent = mensaje;
+    error.style.display = "block";
+}
+
+function limpiarErrorModal() {
+    const errEl = document.getElementById("errorModalCliente");
+    if (errEl) { errEl.textContent = ""; errEl.style.display = "none"; }
 }
 
 function abrirModalAgregar() {
     document.getElementById("modalTitle").innerText    = "Agregar Cliente";
     document.getElementById("btnGuardar").innerText    = "Guardar";
+    document.getElementById("clienteId").value = "";
     document.getElementById("tipo").value      = "Persona Natural";
     document.getElementById("documento").value = "";
     document.getElementById("nombre").value    = "";
     document.getElementById("correo").value    = "";
     document.getElementById("telefono").value  = "";
-    const errEl = document.getElementById("errorModalCliente");
-    if (errEl) errEl.textContent = "";
+    limpiarErrorModal();
+    actualizarValidacionDocumento();
     abrirModal("modalCliente");
 }
 
@@ -35,6 +42,8 @@ function abrirModalEditar(btn) {
     document.getElementById("nombre").value     = btn.dataset.nombre;
     document.getElementById("correo").value     = btn.dataset.correo;
     document.getElementById("telefono").value   = btn.dataset.telefono;
+    limpiarErrorModal();
+    actualizarValidacionDocumento();
     abrirModal("modalCliente");
 }
 
@@ -76,6 +85,65 @@ function buscarClientes(termino) {
     window.location.href = url.toString();
 }
 
+// =========================================================
+// MOD-5 — Validar documento en CREACIÓN y en EDICIÓN.
+//
+// ANTES: el submit listener hacía "if (id) return" y saltaba
+//        toda la validación al editar. Era posible guardar una
+//        cédula de 2 dígitos o un NIT sin formato correcto.
+//
+// AHORA: se valida siempre. En edición solo se omite la
+//        verificación de duplicado (eso lo hace el backend).
+// =========================================================
+function validarFormularioCliente(e) {
+    const id        = document.getElementById("clienteId").value.trim();
+    const documento = document.getElementById("documento").value.trim();
+    const nombre    = document.getElementById("nombre").value.trim();
+    const correo    = document.getElementById("correo").value.trim();
+    const telefono  = document.getElementById("telefono").value.trim();
+    const tipo      = document.getElementById("tipo").value;
+
+    limpiarErrorModal();
+
+    // Nombre
+    if (nombre.length < 3) {
+        e.preventDefault();
+        mostrarErrorModal("El nombre debe tener al menos 3 caracteres.");
+        return;
+    }
+
+    // Correo
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) {
+        e.preventDefault();
+        mostrarErrorModal("El correo no tiene un formato válido.");
+        return;
+    }
+
+    // Teléfono
+    if (!/^3\d{9}$/.test(telefono)) {
+        e.preventDefault();
+        mostrarErrorModal("El teléfono debe tener 10 dígitos y empezar por 3.");
+        return;
+    }
+
+    // Documento (aplica en creación Y edición)
+    if (!documento) {
+        e.preventDefault();
+        mostrarErrorModal("El número de documento es obligatorio.");
+        return;
+    }
+    if (tipo === "Persona Natural" && !/^\d{6,10}$/.test(documento)) {
+        e.preventDefault();
+        mostrarErrorModal("La cédula debe tener entre 6 y 10 dígitos.");
+        return;
+    }
+    if (tipo === "Empresa" && !/^\d{9,10}(-\d)?$/.test(documento)) {
+        e.preventDefault();
+        mostrarErrorModal("El NIT debe tener formato válido (ej: 900123456-1).");
+        return;
+    }
+}
+
 document.addEventListener("DOMContentLoaded", function () {
 
     document.getElementById("addClientBtn")
@@ -85,7 +153,7 @@ document.addEventListener("DOMContentLoaded", function () {
         ?.addEventListener("click", () => abrirModal("filterModal"));
 
     document.getElementById("closeModalCliente")
-        ?.addEventListener("click", () => cerrarModal("modalCliente"));
+        ?.addEventListener("click", () => { cerrarModal("modalCliente"); limpiarErrorModal(); });
 
     document.getElementById("closeFilterCliente")
         ?.addEventListener("click", () => cerrarModal("filterModal"));
@@ -107,32 +175,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const form = document.getElementById("formCliente");
     if (form) {
-        form.addEventListener("submit", function (e) {
-            const id        = document.getElementById("clienteId").value;
-            const documento = document.getElementById("documento").value.trim();
-            const tipo      = document.getElementById("tipo").value;
-
-            if (id) return;
-
-            if (!documento) {
-                e.preventDefault();
-                mostrarErrorModal("El número de documento es obligatorio.");
-                return;
-            }
-            if (tipo === "Persona Natural" && !/^\d{6,10}$/.test(documento)) {
-                e.preventDefault();
-                mostrarErrorModal("La cédula debe tener entre 6 y 10 dígitos.");
-                return;
-            }
-            if (tipo === "Empresa" && !/^\d{9,10}(-\d)?$/.test(documento)) {
-                e.preventDefault();
-                mostrarErrorModal("El NIT debe tener formato válido (ej: 900123456-1).");
-                return;
-            }
-        });
+        form.addEventListener("submit", validarFormularioCliente);
     }
 
-    //busqueda en tiempo real con debounce 
+    // Búsqueda en tiempo real con debounce
     const searchInput = document.getElementById("searchInput");
     if (searchInput) {
         const params = new URLSearchParams(window.location.search);
