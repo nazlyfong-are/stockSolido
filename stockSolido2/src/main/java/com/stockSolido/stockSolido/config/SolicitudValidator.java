@@ -8,13 +8,13 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 
 /**
- * Reglas de validación:
+ * Reglas de validacion:
  *   - La fecha es obligatoria
- *   - FIX 4: Solo en CREACIÓN se bloquean fechas pasadas.
- *            En EDICIÓN se permite cualquier fecha (para poder cambiar
+ *   - solo en creacion se bloquean fechas pasadas.
+ *            En edicion se permite cualquier fecha (para poder cambiar
  *            el estado de solicitudes ya agendadas).
  *   - No se permiten solicitudes en domingo
- *   - La hora debe estar dentro del horario laboral (7:00 - 18:30)
+ *   - La hora debe estar dentro del horario laboral (7:00 - 6:30)
  *   - Se debe seleccionar un cliente
  *   - Se debe seleccionar un tipo de servicio
  *   - El no. de servicios debe ser mayor a 0
@@ -29,7 +29,7 @@ public class SolicitudValidator {
      * Valida una solicitud de servicio.
      *
      * @param solicitud la solicitud a validar
-     * @return mensaje de error si hay un error, null si es válida
+     * @return mensaje de error si hay un error, null si es valida
      */
     public String validar(requestModel solicitud) {
 
@@ -40,15 +40,7 @@ public class SolicitudValidator {
         if (fecha == null)
             return "La fecha es obligatoria.";
 
-        // =========================================================
-        // FIX 4 — Verificar si es nueva (id null o vacío) o edición.
-        //
-        // ANTES: se bloqueaba fecha pasada siempre → imposible editar
-        //        una solicitud de días anteriores.
-        //
-        // AHORA: la restricción de fecha futura solo aplica al CREAR.
-        //        Al EDITAR solo se bloquea el domingo (siempre inválido).
-        // =========================================================
+        //verificar si es nueva (id null o vacio) o edicion
         boolean esNueva = solicitud.getId() == null || solicitud.getId().trim().isEmpty();
 
         if (esNueva && fecha.isBefore(LocalDate.now()))

@@ -137,11 +137,6 @@ public class request_controller {
         boolean esNueva = solicitud.getId() == null || solicitud.getId().trim().isEmpty();
 
         if (esNueva) {
-            // =========================================================
-            // FIX 3 — ID correlativo: se calcula UNA vez y se loguea.
-            // Nota: para producción con concurrencia real, reemplazar por
-            // una colección "counters" en MongoDB con findAndModify.
-            // =========================================================
             solicitud.setId(null);
             int siguienteId = RequestService.listar()
                 .stream()
@@ -156,14 +151,9 @@ public class request_controller {
             }
         }
 
-        // Guardar la solicitud en su colección
+        // Guardar la solicitud en su coleccion
         requestModel guardada = RequestService.guardar(solicitud);
 
-        // =========================================================
-        // FIX 2 — Sincronizar el array de solicitudes dentro del cliente
-        // Tanto en creación como en edición se actualiza el documento
-        // del cliente para mantener consistencia de datos.
-        // =========================================================
         if (guardada.getCliente() != null
                 && guardada.getCliente().getClienteId() != null
                 && !guardada.getCliente().getClienteId().trim().isEmpty()) {
@@ -213,7 +203,7 @@ public ResponseEntity<String> eliminarSolicitud(@PathVariable String id) {
         return ResponseEntity.status(404).body("Solicitud no encontrada.");
     }
 
-    // Bloquear eliminación si no está Finalizada
+    //bloquear eliminacion si no esta finalizada
     String estado = solicitud.getEstado();
     if (estado == null || !estado.trim().equalsIgnoreCase("Finalizado")) {
         return ResponseEntity
@@ -222,7 +212,7 @@ public ResponseEntity<String> eliminarSolicitud(@PathVariable String id) {
                   "Solo se pueden eliminar solicitudes Finalizadas.");
     }
 
-    // Sincronizar con el cliente embebido
+    //sincronizar si no esta con cliente embebido
     if (solicitud.getCliente() != null
             && solicitud.getCliente().getClienteId() != null) {
 

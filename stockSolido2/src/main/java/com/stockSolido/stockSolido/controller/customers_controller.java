@@ -22,9 +22,9 @@ import com.stockSolido.stockSolido.config.ClienteValidator;
 import com.stockSolido.stockSolido.model.customersModel;
 import com.stockSolido.stockSolido.model.requestModel;
 import com.stockSolido.stockSolido.service.customersService;
-import com.stockSolido.stockSolido.service.requestService;   // MOD-1
+import com.stockSolido.stockSolido.service.requestService;  
 
-import java.util.List;                                        // MOD-1
+import java.util.List;                                        
 
 @Controller
 @RequestMapping("/private/admin")
@@ -36,7 +36,7 @@ public class customers_controller {
     @Autowired
     private ClienteValidator clienteValidator;
 
-    // MOD-1: inyectar requestService para eliminar solicitudes huérfanas
+    //inyectar requestService para eliminar solicitudes huerfanas
     @Autowired
     private requestService RequestService;
 
@@ -92,16 +92,7 @@ public class customers_controller {
 
         boolean esNuevo = cliente.getId() == null || cliente.getId().trim().isEmpty();
 
-        // =========================================================
-        // MOD-2 — Validar documento también en edición.
-        //
-        // ANTES: el listener JS hacía "if (id) return" y saltaba la
-        //        validación completa al editar. El backend tampoco
-        //        revalidaba el documento en edición.
-        //
-        // AHORA: clienteValidator.validar() se ejecuta siempre.
-        //        El validador ya comprueba formato de doc/teléfono/correo.
-        // =========================================================
+
         String errorFormato = clienteValidator.validar(cliente);
         if (errorFormato != null) {
             redirectAttrs.addFlashAttribute("errorCliente", errorFormato);
@@ -116,8 +107,8 @@ public class customers_controller {
                 return "redirect:/private/admin/customers";
             }
         } else {
-            // En edición: si el documento cambió, verificar que el nuevo no esté en uso
-            // por OTRO cliente (no por el mismo que se está editando)
+            // En edicion: si el documento cambio, verificar que el nuevo no este en uso
+            // por OTRO cliente (no por el mismo que se esta editando)
             customersModel existente = CustomersService.buscar(cliente.getId());
             if (existente != null
                     && !existente.getDocumento().equals(cliente.getDocumento())
@@ -142,16 +133,7 @@ public class customers_controller {
     @ResponseBody
     public ResponseEntity<Void> eliminarCliente(@PathVariable String id) {
 
-        // =========================================================
-        // MOD-1 — Eliminar en cascada: borrar también todas las
-        //          solicitudes de este cliente en la colección "solicitud".
-        //
-        // ANTES: solo se borraba el documento del cliente. Las solicitudes
-        //        quedaban huérfanas con un clienteId que ya no existe,
-        //        contaminando el historial y los reportes de totales.
-        //
-        // AHORA: primero se eliminan todas sus solicitudes, luego el cliente.
-        // =========================================================
+        //primero se eliminan las solicitudes y luego el cliente
         List<requestModel> todasLasSolicitudes = RequestService.listar();
         for (requestModel solicitud : todasLasSolicitudes) {
             if (solicitud.getCliente() != null

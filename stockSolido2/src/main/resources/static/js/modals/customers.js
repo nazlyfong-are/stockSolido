@@ -85,16 +85,6 @@ function buscarClientes(termino) {
     window.location.href = url.toString();
 }
 
-// =========================================================
-// MOD-5 — Validar documento en CREACIÓN y en EDICIÓN.
-//
-// ANTES: el submit listener hacía "if (id) return" y saltaba
-//        toda la validación al editar. Era posible guardar una
-//        cédula de 2 dígitos o un NIT sin formato correcto.
-//
-// AHORA: se valida siempre. En edición solo se omite la
-//        verificación de duplicado (eso lo hace el backend).
-// =========================================================
 function validarFormularioCliente(e) {
     const id        = document.getElementById("clienteId").value.trim();
     const documento = document.getElementById("documento").value.trim();
@@ -119,7 +109,7 @@ function validarFormularioCliente(e) {
         return;
     }
 
-    // Teléfono
+    // tel
     if (!/^3\d{9}$/.test(telefono)) {
         e.preventDefault();
         mostrarErrorModal("El teléfono debe tener 10 dígitos y empezar por 3.");
@@ -178,7 +168,7 @@ document.addEventListener("DOMContentLoaded", function () {
         form.addEventListener("submit", validarFormularioCliente);
     }
 
-    // Búsqueda en tiempo real con debounce
+    //busqueda en tiempo real con debounce
     const searchInput = document.getElementById("searchInput");
     if (searchInput) {
         const params = new URLSearchParams(window.location.search);

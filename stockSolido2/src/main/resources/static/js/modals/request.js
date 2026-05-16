@@ -77,13 +77,6 @@ function abrirModalEditarSolicitud(btn) {
     document.getElementById("modalTitleSolicitud").innerText  = "Editar Solicitud";
     document.getElementById("btnGuardarSolicitud").innerText  = "Actualizar";
     document.getElementById("solicitudId").value              = btn.dataset.id;
-
-    // =========================================================
-    // FIX 5 — Cargar los hidden del cliente SIEMPRE desde los
-    // data-* del botón, no solo cuando el usuario cambia el select.
-    // Esto garantiza que los datos del cliente lleguen al servidor
-    // aunque el usuario no toque el select durante la edición.
-    // =========================================================
     document.getElementById("clienteIdHidden").value          = btn.dataset.clienteId       || "";
     document.getElementById("clienteNombreHidden").value      = btn.dataset.clienteNombre   || "";
     document.getElementById("clienteDocumentoHidden").value   = btn.dataset.clienteDocumento|| "";
@@ -319,7 +312,6 @@ function buscarSolicitudes(termino) {
 
 function validarFecha(fecha, esEdicion) {
     if (!fecha) return "La fecha es obligatoria.";
-    // FIX 4 (lado cliente): solo bloquear pasado si es nueva solicitud
     if (!esEdicion) {
         const hoy = new Date(); hoy.setHours(0, 0, 0, 0);
         const sel = new Date(fecha + "T00:00:00");
@@ -421,7 +413,7 @@ document.addEventListener("DOMContentLoaded", function () {
             limpiarErroresSolicitud();
             let valido = true;
 
-            // FIX 5 — Verificar que el cliente esté cargado en los hidden
+            //verificar que el cliente este cargado en los hidden
             const clienteIdVal = document.getElementById("clienteIdHidden")?.value;
             if (!clienteIdVal || clienteIdVal.trim() === "") {
                 const errCliente = document.getElementById("errorCliente");
@@ -429,7 +421,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 valido = false;
             }
 
-            // FIX 4 (cliente) — detectar si es edición para no bloquear fecha pasada
+            //detectar si es edicion para no bloquear fecha pasada
             const solicitudId = document.getElementById("solicitudId")?.value;
             const esEdicion = solicitudId && solicitudId.trim() !== "";
 
