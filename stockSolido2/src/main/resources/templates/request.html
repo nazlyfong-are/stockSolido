@@ -26,6 +26,9 @@
   <main class="main-content">
     <div th:if="${errorSolicitud}" class="alert-error" th:text="${errorSolicitud}"></div>
 
+    <!-- Mensaje de error al eliminar (generado por JS) -->
+    <div id="errorEliminarSolicitud" class="alert-error" style="display:none;"></div>
+
     <div class="top-bar">
       <h1>Gestión de Solicitudes</h1>
       <div class="top-actions">

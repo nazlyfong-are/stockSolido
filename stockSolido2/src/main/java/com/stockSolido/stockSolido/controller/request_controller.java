@@ -203,26 +203,39 @@ public class request_controller {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    @ResponseBody
-    @DeleteMapping("/eliminarSolicitud/{id}")
-    public ResponseEntity<Void> eliminarSolicitud(@PathVariable String id) {
+@ResponseBody
+@DeleteMapping("/eliminarSolicitud/{id}")
+public ResponseEntity<String> eliminarSolicitud(@PathVariable String id) {
 
-        requestModel solicitud = RequestService.buscar(id);
+    requestModel solicitud = RequestService.buscar(id);
 
-        if (solicitud != null
-                && solicitud.getCliente() != null
-                && solicitud.getCliente().getClienteId() != null) {
-
-            customersModel cliente = CustomersService.buscar(solicitud.getCliente().getClienteId());
-            if (cliente != null) {
-                cliente.getSolicitudes().removeIf(
-                    s -> s.getIdSolicitud() == solicitud.getIdSolicitud()
-                );
-                CustomersService.guardar(cliente);
-            }
-        }
-
-        RequestService.eliminar(id);
-        return ResponseEntity.ok().build();
+    if (solicitud == null) {
+        return ResponseEntity.status(404).body("Solicitud no encontrada.");
     }
+
+    // Bloquear eliminación si no está Finalizada
+    String estado = solicitud.getEstado();
+    if (estado == null || !estado.trim().equalsIgnoreCase("Finalizado")) {
+        return ResponseEntity
+            .status(409)
+            .body("No se puede eliminar la solicitud porque está en estado \"" + estado + "\". " +
+                  "Solo se pueden eliminar solicitudes Finalizadas.");
+    }
+
+    // Sincronizar con el cliente embebido
+    if (solicitud.getCliente() != null
+            && solicitud.getCliente().getClienteId() != null) {
+
+        customersModel cliente = CustomersService.buscar(solicitud.getCliente().getClienteId());
+        if (cliente != null) {
+            cliente.getSolicitudes().removeIf(
+                s -> s.getIdSolicitud() == solicitud.getIdSolicitud()
+            );
+            CustomersService.guardar(cliente);
+        }
+    }
+
+    RequestService.eliminar(id);
+    return ResponseEntity.ok("eliminado");
+}
 }

@@ -124,21 +124,51 @@ function abrirModalEditarSolicitud(btn) {
 
 function confirmarEliminar(btn) {
     const id = btn.dataset.id;
-    document.getElementById("confirmDelete").onclick = function () {
+    const confirmBtn = document.getElementById("confirmDelete");
+    const newBtn = confirmBtn.cloneNode(true);
+    confirmBtn.parentNode.replaceChild(newBtn, confirmBtn);
+
+    newBtn.addEventListener("click", function () {
         const csrfToken  = document.querySelector('meta[name="_csrf"]').content;
         const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
 
-        fetch(`/private/admin/eliminarSolicitud/${id}`, {
+        fetch(`/private/admin/eliminarSolicitud/${id}`, {   // ← corregido
             method: "DELETE",
             headers: { [csrfHeader]: csrfToken }
         })
-        .then(res => {
-            if (res.ok) { cerrarModal("deleteModal"); location.reload(); }
-            else        { alert("Error al eliminar la solicitud."); }
+        .then(async res => {
+            const texto = await res.text();
+            cerrarModal("deleteModal");
+
+            if (res.ok) {
+                location.reload();
+            } else if (res.status === 409) {
+                setTimeout(() => mostrarErrorEliminar(texto), 150);
+            } else {
+                setTimeout(() => mostrarErrorEliminar("Error al eliminar la solicitud. Intenta de nuevo."), 150);
+            }
         })
-        .catch(err => console.error("Error:", err));
-    };
+        .catch(err => {
+            cerrarModal("deleteModal");
+            console.error("Error:", err);
+        });
+    });
+
     abrirModal("deleteModal");
+}
+
+function mostrarErrorEliminar(mensaje) {
+    const el = document.getElementById("errorEliminarSolicitud");
+    if (!el) return;
+    el.textContent = mensaje;
+    el.style.display = "block";
+    setTimeout(() => {
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 100);
+    setTimeout(() => {
+        el.style.display = "none";
+        el.textContent = "";
+    }, 6000);
 }
 
 // filtro

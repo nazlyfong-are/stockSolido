@@ -38,7 +38,7 @@ public class service_controller {
     @Autowired
     private requestService RequestService;
 
-    //listar
+    // listar
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/services")
     public String mostrarServicios(
@@ -60,7 +60,6 @@ public class service_controller {
 
         Page<servicesModel> paginadoServicios = serviceServi.obtenerPaginados(busqueda, pageable);
 
-        //paginacion y filtros
         model.addAttribute("listaServicios",  paginadoServicios.getContent());
         model.addAttribute("currentPage",     paginadoServicios.getNumber());
         model.addAttribute("totalPages",      paginadoServicios.getTotalPages());
@@ -68,7 +67,6 @@ public class service_controller {
         model.addAttribute("terminoBusqueda", busqueda);
         model.addAttribute("ordenActivo",     orden);
 
-        // precargar modal
         if (idServicio != null) {
             model.addAttribute("servicioActual", serviceServi.buscar(idServicio));
             model.addAttribute("tituloModal",    "Editar Servicio");
@@ -80,7 +78,7 @@ public class service_controller {
         return "services";
     }
 
-    //guardar/actualizar
+    // guardar/actualizar
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/guardarServicio")
     public String guardarServicio(
@@ -89,14 +87,12 @@ public class service_controller {
 
         boolean esNuevo = servicio.getId() == null || servicio.getId().trim().isEmpty();
 
-        //validar precio antes de cualquier informacion
         if (servicio.getPrecioServicio() == null || servicio.getPrecioServicio() <= 0) {
             redirectAttrs.addFlashAttribute("errorServicio", "El precio debe ser mayor a 0.");
             return "redirect:/private/admin/services";
         }
 
         if (esNuevo) {
-            //crear= verificar nombre unico y registrar precio inicial
             servicio.setId(null);
 
             if (serviceServi.existePorTipoServicio(servicio.getTipoServicio())) {
@@ -113,7 +109,6 @@ public class service_controller {
             servicio.getHistorialPrecios().add(precioInicial);
 
         } else {
-            // MOD-4: preservar historial siempre, no solo cuando cambia el precio
             servicesModel existente = serviceServi.buscar(servicio.getId());
             if (existente != null) {
                 servicio.setHistorialPrecios(existente.getHistorialPrecios());
@@ -133,34 +128,11 @@ public class service_controller {
         return "redirect:/private/admin/services";
     }
 
-    // CAMBIO CLAVE 1: ResponseEntity<String> en lugar de ResponseEntity<Void>
-    // Con Void el cuerpo del 409 llega vacío al frontend — no se puede leer el mensaje.
     @PreAuthorize("hasRole('ADMIN')")
     @ResponseBody
     @DeleteMapping("/eliminarServicio/{id}")
-    public ResponseEntity<String> eliminarServicio(@PathVariable String id) {
-
-        servicesModel servicio = serviceServi.buscar(id);
-
-        if (servicio != null) {
-            String tipo = servicio.getTipoServicio();
-            List<requestModel> todas = RequestService.listar();
-
-            boolean tieneActivas = todas.stream()
-                .filter(s -> s.getServicio() != null
-                        && tipo.equals(s.getServicio().getTipoServicio()))
-                .anyMatch(s -> !"Finalizado".equals(s.getEstado()));
-
-            if (tieneActivas) {
-                return ResponseEntity
-                    .status(409)
-                    .body("No se puede eliminar \"" + tipo + "\" porque tiene solicitudes " +
-                          "activas (En espera o En proceso). " +
-                          "Finalízalas o elimínalas primero.");
-            }
-        }
-
+    public ResponseEntity<Void> eliminarServicio(@PathVariable String id) {
         serviceServi.eliminar(id);
-        return ResponseEntity.ok("eliminado");
+        return ResponseEntity.ok().build();
     }
 }

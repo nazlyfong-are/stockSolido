@@ -28,7 +28,11 @@
 
   <main class="main-content">
 
+    <!-- Errores del servidor (guardar/editar) -->
     <div th:if="${errorServicio}" class="alert-error" th:text="${errorServicio}"></div>
+
+    <!-- Mensaje de error al eliminar (generado por JS, oculto por defecto) -->
+    <div id="errorEliminarServicio" class="alert-error" style="display:none;"></div>
 
     <div class="top-bar">
       <h1>Gestión de Servicios</h1>
@@ -38,7 +42,6 @@
           <input type="text" id="searchInput" placeholder="Buscar servicio..." />
         </div>
 
-        <!-- SIN onclick -->
         <button class="primary-btn" id="addServiceBtn">
           Agregar
         </button>
@@ -69,7 +72,6 @@
             <td th:text="${#numbers.formatInteger(service.precioServicio, 1, 'POINT')}"></td>
 
             <td>
-              <!-- SIN onclick -->
               <button class="action-btn edit"
                 th:attr="
                   data-id=${service.id},
@@ -90,7 +92,6 @@
         </tbody>
       </table>
 
-      <!-- paginacion -->
       <div th:replace="fragments/pagination :: paginacion(
     '/private/admin/services',
     ${currentPage},

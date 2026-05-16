@@ -1,5 +1,3 @@
-//logica de modales y formulario de servicios
-
 let _debounceTimerServices = null;
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -49,7 +47,6 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    //indicador de orden
     const url = new URL(window.location.href);
     const orden = url.searchParams.get('orden');
     const indicador = document.getElementById('ordenIndicador');
@@ -58,7 +55,6 @@ document.addEventListener("DOMContentLoaded", function () {
         if (orden === 'desc') indicador.textContent = '↓ Mayor precio';
     }
 
-    //busqueda en tiempo real con debounce
     const searchInput = document.getElementById("searchInput");
     if (searchInput) {
         const params = new URLSearchParams(window.location.search);
@@ -78,6 +74,18 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 });
+
+function mostrarErrorEliminar(mensaje) {
+    const el = document.getElementById("errorEliminarServicio");
+    if (!el) return;
+    el.textContent = mensaje;
+    el.style.display = "block";
+    el.scrollIntoView({ behavior: "smooth", block: "center" });
+    setTimeout(() => {
+        el.style.display = "none";
+        el.textContent = "";
+    }, 6000);
+}
 
 function alternarOrden() {
     const url = new URL(window.location.href);
@@ -106,13 +114,10 @@ function abrirModalEditarServicio(btn) {
     abrirModal("modalServicio");
 }
 
+
 function confirmarEliminar(btn) {
     const id = btn.dataset.id;
-    const confirmBtn = document.getElementById("confirmDelete");
-    const newBtn = confirmBtn.cloneNode(true);
-    confirmBtn.parentNode.replaceChild(newBtn, confirmBtn);
-
-    newBtn.addEventListener("click", function () {
+    document.getElementById("confirmDelete").onclick = function () {
         const csrfToken  = document.querySelector('meta[name="_csrf"]').content;
         const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
 
@@ -120,31 +125,12 @@ function confirmarEliminar(btn) {
             method: "DELETE",
             headers: { [csrfHeader]: csrfToken }
         })
-        .then(async res => {
-            // CAMBIO CLAVE 2: leer el texto PRIMERO, cerrar el modal DESPUÉS.
-            // Antes se cerraba el modal antes de mostrar el alert,
-            // lo que en algunos navegadores cancela el alert.
-            const texto = await res.text();
-
-            if (res.ok) {
-                cerrarModal("deleteModal");
-                location.reload();
-            } else if (res.status === 409) {
-                cerrarModal("deleteModal");
-                // Pequeño delay para que el modal termine de cerrar
-                // antes de que el alert bloquee el hilo del navegador
-                setTimeout(() => alert(texto), 100);
-            } else {
-                cerrarModal("deleteModal");
-                setTimeout(() => alert("Error al eliminar el servicio."), 100);
-            }
+        .then(res => {
+            if (res.ok) { cerrarModal("deleteModal"); location.reload(); }
+            else        { alert("Error al eliminar el servicio."); }
         })
-        .catch(err => {
-            cerrarModal("deleteModal");
-            console.error("Error:", err);
-        });
-    });
-
+        .catch(err => console.error("Error:", err));
+    };
     abrirModal("deleteModal");
 }
 
