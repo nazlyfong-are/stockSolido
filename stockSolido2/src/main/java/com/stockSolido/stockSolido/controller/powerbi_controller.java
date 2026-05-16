@@ -11,29 +11,6 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import java.util.Map;
 
-/**
- * ─────────────────────────────────────────────────────────────────
- * API REST para la integración con Power BI.
- *
- * Expone datos en formato JSON para que Power BI los consuma
- * mediante HTTP Basic con el usuario "powerbii" (rol POWERBI).
- *
- * BUG CORREGIDO:
- *   - La ruta base era "/private/admin/api" pero el SecurityConfig
- *     protege "/api/powerbi/**" con HTTP Basic + STATELESS.
- *     Se corrige la ruta base a "/api/powerbi" para que coincida
- *     con la cadena de filtros dedicada (powerBiFilterChain).
- *   - El rol requerido era ADMIN en lugar de POWERBI, lo que
- *     impedía que el usuario de Power BI pudiera autenticarse.
- *
- * Endpoints disponibles:
- *   GET /api/powerbi/ingresos          → historial completo de solicitudes
- *   GET /api/powerbi/clientes          → lista de clientes registrados
- *   GET /api/powerbi/ranking-servicios → conteo y ranking por tipo de servicio
- *   GET /api/powerbi/pendientes        → solicitudes en estado pendiente
- *   GET /api/powerbi/proximos          → próximas solicitudes programadas
- * ─────────────────────────────────────────────────────────────────
- */
 @RestController
 @RequestMapping("/api/powerbi")
 public class powerbi_controller {

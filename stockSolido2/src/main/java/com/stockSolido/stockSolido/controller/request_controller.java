@@ -24,7 +24,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.stockSolido.stockSolido.config.SolicitudValidator;
 import com.stockSolido.stockSolido.model.customersModel;
 import com.stockSolido.stockSolido.model.requestModel;
-import com.stockSolido.stockSolido.model.SolicitudEmbebida;    // FIX 2
+import com.stockSolido.stockSolido.model.SolicitudEmbebida;    
 import com.stockSolido.stockSolido.model.servicesModel;
 import com.stockSolido.stockSolido.service.customersService;
 import com.stockSolido.stockSolido.service.requestService;

@@ -57,7 +57,7 @@ public class servicesServiceIMPL implements servicesService {
     //listar paginado con busqueda
     /**
      * Devuelve una pagina de servicios con busqueda opcional sobre
-     * tipoServicio y precio.
+     * tipoServicio y precio
      */
     @Override
     @PreAuthorize("hasRole('ADMIN')")

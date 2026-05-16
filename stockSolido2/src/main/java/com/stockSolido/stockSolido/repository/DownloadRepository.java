@@ -23,6 +23,7 @@ public class DownloadRepository {
     @Autowired
     private MongoTemplate mongo;
 
+    //nombres de las colecciones en mongo
     private static final String COL_SOLICITUDES = "solicitud";
     private static final String COL_CLIENTES    = "clientes";
 
@@ -36,13 +37,14 @@ public class DownloadRepository {
 
     //historial completo
     public List<Map<String, Object>> findHistorialCompleto() {
-        Query q = new Query(Criteria.where("estado").is("Finalizado"))
-                .with(Sort.by(Sort.Direction.DESC, "fecha"));
+        Query q = new Query(Criteria.where("estado").is("Finalizado")) //estado finalizadp
+                .with(Sort.by(Sort.Direction.DESC, "fecha")); //orden descendente
         return mapearSolicitudes(mongo.find(q, Document.class, COL_SOLICITUDES));
     }
 
     //solicitudes x estado
     public List<Map<String, Object>> findPorEstado(String estado) {
+        //que no sea null y que no este vacio
         Query q = (estado != null && !estado.isBlank())
                 ? new Query(Criteria.where("estado").is(estado))
                 : new Query();
@@ -53,7 +55,7 @@ public class DownloadRepository {
     //servicios x periodo 
     public List<Map<String, Object>> findIngresosPorPeriodo(LocalDate inicio, LocalDate fin) {
         Query q = new Query(Criteria.where("estado").is("Finalizado"))
-                .with(Sort.by(Sort.Direction.ASC, "fecha"));
+                .with(Sort.by(Sort.Direction.ASC, "fecha")); //ascendente
         List<Map<String, Object>> todos = mapearSolicitudes(
                 mongo.find(q, Document.class, COL_SOLICITUDES));
 
@@ -72,7 +74,7 @@ public class DownloadRepository {
         List<Document> pipeline = Arrays.asList(
             new Document("$group", new Document("_id", "$servicio.tipoServicio")
                     .append("cantidad", new Document("$sum", 1))),
-            new Document("$sort", new Document("cantidad", -1))
+            new Document("$sort", new Document("cantidad", -1)) //ordena mayor a menor
         );
 
         List<Document> results = new ArrayList<>();
