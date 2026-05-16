@@ -20,55 +20,76 @@
         <input type="hidden" id="clienteCorreoHidden"    name="cliente.correo" />
         <input type="hidden" id="clienteTelefonoHidden"  name="cliente.telefono" />
 
-        <!-- Cliente -->
         <div class="form-group">
           <label>Cliente</label>
-          <!--
-            FIX 5 — El select NO tiene name (correcto, es solo visual).
-            Los datos del cliente viajan por los hidden inputs de arriba.
-            El JS ya llena los hidden al cambiar el select (actualizarCliente).
-            El problema era que al EDITAR, si el usuario no tocaba el select,
-            los hidden quedaban vacíos.
-
-            Solución: el JS en abrirModalEditarSolicitud() ya carga los hidden
-            desde los data-* del botón editar. Para el caso de agregar, el
-            required del select garantiza que el usuario elija uno.
-            Adicionalmente, se agrega un listener "submit" que verifica que
-            clienteIdHidden tenga valor antes de enviar el formulario.
-          -->
-          <select id="clienteSelect" required>
-            <option value="">Seleccione un cliente</option>
-            <option th:each="cliente : ${listaClientes}"
-                    th:value="${cliente.id}"
-                    th:text="${cliente.nombre}"
-                    th:attr="
-                      data-nombre=${cliente.nombre},
-                      data-documento=${cliente.documento},
-                      data-tipo=${cliente.tipo},
-                      data-correo=${cliente.correo},
-                      data-telefono=${cliente.telefono}">
-            </option>
-          </select>
-          <!-- FIX 5: mensaje de error si el cliente no se cargó correctamente -->
-          <small id="errorCliente" class="field-error" style="display:none;">
-            Debe seleccionar un cliente.
-          </small>
+          <div class="searchable-select" id="clienteSelectWrapper">
+            <div class="searchable-select__display" id="clienteDisplay" tabindex="0">
+              <span id="clienteDisplayText" class="searchable-select__placeholder">Seleccione un cliente</span>
+              <span class="searchable-select__arrow">&#9660;</span>
+            </div>
+            <div class="searchable-select__dropdown" id="clienteDropdown">
+              <input
+                type="text"
+                class="searchable-select__input"
+                id="clienteSearchInput"
+                placeholder="Buscar por nombre o documento..."
+                autocomplete="off"
+              />
+              <ul class="searchable-select__list" id="clienteList">
+                <li class="searchable-select__item searchable-select__empty" data-value="">Seleccione un cliente</li>
+                <li
+                  th:each="cliente : ${listaClientes}"
+                  class="searchable-select__item"
+                  th:attr="
+                    data-value=${cliente.id},
+                    data-nombre=${cliente.nombre},
+                    data-documento=${cliente.documento},
+                    data-tipo=${cliente.tipo},
+                    data-correo=${cliente.correo},
+                    data-telefono=${cliente.telefono}"
+                  th:text="${cliente.nombre} + ' — ' + ${cliente.documento}">
+                </li>
+              </ul>
+              <p class="searchable-select__no-results" id="clienteNoResults" style="display:none;">Sin resultados</p>
+            </div>
+          </div>
+          <small id="errorCliente" class="field-error" style="display:none;">Debe seleccionar un cliente.</small>
         </div>
 
         <!-- Campo oculto del precio del servicio embebido -->
         <input type="hidden" id="servicioPrecioHidden" name="servicio.precioUnitario" />
 
-        <!-- Tipo de Servicio -->
+      
         <div class="form-group">
           <label>Tipo de Servicio</label>
-          <select id="tipoServicioSelect" name="servicio.tipoServicio" required>
-            <option value="" data-precio="0">Seleccione un servicio</option>
-            <option th:each="servicio : ${tiposServicio}"
-                    th:value="${servicio.tipoServicio}"
-                    th:text="${servicio.tipoServicio}"
-                    th:attr="data-precio=${servicio.precioServicio}">
-            </option>
-          </select>
+          <input type="hidden" id="tipoServicioHidden" name="servicio.tipoServicio" />
+          <div class="searchable-select" id="servicioSelectWrapper">
+            <div class="searchable-select__display" id="servicioDisplay" tabindex="0">
+              <span id="servicioDisplayText" class="searchable-select__placeholder">Seleccione un servicio</span>
+              <span class="searchable-select__arrow">&#9660;</span>
+            </div>
+            <div class="searchable-select__dropdown" id="servicioDropdown">
+              <input
+                type="text"
+                class="searchable-select__input"
+                id="servicioSearchInput"
+                placeholder="Buscar servicio..."
+                autocomplete="off"
+              />
+              <ul class="searchable-select__list" id="servicioList">
+                <li class="searchable-select__item searchable-select__empty" data-value="" data-precio="0">Seleccione un servicio</li>
+                <li
+                  th:each="servicio : ${tiposServicio}"
+                  class="searchable-select__item"
+                  th:attr="
+                    data-value=${servicio.tipoServicio},
+                    data-precio=${servicio.precioServicio}"
+                  th:text="${servicio.tipoServicio}">
+                </li>
+              </ul>
+              <p class="searchable-select__no-results" id="servicioNoResults" style="display:none;">Sin resultados</p>
+            </div>
+          </div>
         </div>
 
         <div class="form-group">
@@ -87,7 +108,7 @@
           <label>Fecha</label>
           <input type="date" id="fecha" name="fecha" required />
           <small id="errorFecha" class="field-error"></small>
-          <small class="field-hint">No se permiten domingos ni fechas pasadas (solo al crear).</small>
+          <small class="field-hint">No se permiten domingos ni fechas pasadas.</small>
         </div>
 
         <div class="form-group">
